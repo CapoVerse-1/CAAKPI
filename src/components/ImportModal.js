@@ -81,7 +81,7 @@ function ImportModal({ isOpen, onClose, onFileProcess, onDragOver }) {
   }
 
   return (
-    <div className={`modal-backdrop ${isOpen ? 'open' : ''}`} onClick={handleBackdropClick}>
+    <div className={`modal-backdrop ${isOpen ? 'visible' : ''}`} onClick={handleBackdropClick}>
       <div className="modal-content">
         <button className="modal-close-button" onClick={handleModalClose} title="Close">
           <FiX />
