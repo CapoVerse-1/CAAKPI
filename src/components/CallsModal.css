@@ -142,40 +142,42 @@
     border-bottom: none;
 }
 
-/* NEW: Colored bar style */
-.call-color-bar {
-    flex-shrink: 0; /* Prevent shrinking */
-    width: 5px;
-    height: 20px; /* Adjust height as needed */
-    border-radius: 3px;
-    margin-right: 8px; /* Space between bar and name */
+/* NEW: Wrapper for name and timestamp */
+.call-info {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Allow this group to take up space */
+    gap: 10px; /* Space between name and timestamp */
+    overflow: hidden; /* Prevent overflow issues */
+    min-width: 0; /* Allow shrinking for flexbox */
 }
 
 .call-promoter-name {
     font-weight: 500;
     color: #343a40;
-    flex-grow: 1; /* Allow name to take up remaining space */
-    flex-basis: auto; /* Remove fixed basis */
+    /* Remove grow/basis */
+    /* flex-grow: 1; */
+    /* flex-basis: auto; */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-left: 0; /* Ensure no extra left margin */
+    margin-left: 0;
+    flex-shrink: 1; /* Allow name to shrink if needed */
+    min-width: 50px; /* Give it a minimum width */
 }
 
 .call-timestamp {
     font-size: 0.8rem;
     color: #6c757d;
-    flex-shrink: 0; /* Prevent shrinking */
-    /* flex-basis: auto; */ /* Remove fixed basis */
+    flex-shrink: 0; 
     text-align: right;
-    white-space: nowrap; /* Prevent wrapping */
+    white-space: nowrap; 
 }
 
 .call-actions {
     display: flex;
-    gap: 12px; /* Slightly increase gap */
-    flex-shrink: 0; /* Prevent shrinking */
-    /* flex-basis: auto; */ /* Remove fixed basis */
+    gap: 12px; 
+    flex-shrink: 0; 
     justify-content: flex-end;
 }
 

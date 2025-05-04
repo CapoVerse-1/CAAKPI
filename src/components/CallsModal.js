@@ -84,8 +84,10 @@ function CallsModal({
                                             className="call-color-bar" 
                                             style={{ backgroundColor: getCallColor(call.promoter_name) }}
                                         ></span>
-                                        <span className="call-promoter-name">{call.promoter_name}</span>
-                                        <span className="call-timestamp">Scheduled: {formatTimestamp(call.created_at)}</span>
+                                        <div className="call-info">
+                                            <span className="call-promoter-name">{call.promoter_name}</span>
+                                            <span className="call-timestamp">Scheduled: {formatTimestamp(call.created_at)}</span>
+                                        </div>
                                         <div className="call-actions">
                                             <button 
                                                 className="icon-button call-complete-button" 
@@ -119,8 +121,10 @@ function CallsModal({
                                             className="call-color-bar" 
                                             style={{ backgroundColor: getCallColor(call.promoter_name) }}
                                         ></span>
-                                        <span className="call-promoter-name">{call.promoter_name}</span>
-                                        <span className="call-timestamp">Completed: {formatTimestamp(call.completed_at)}</span>
+                                        <div className="call-info">
+                                            <span className="call-promoter-name">{call.promoter_name}</span>
+                                            <span className="call-timestamp">Completed: {formatTimestamp(call.completed_at)}</span>
+                                        </div>
                                     </li>
                                 ))
                             ) : (
