@@ -13,15 +13,30 @@ const simpleHash = (str) => {
     return Math.abs(hash);
 };
 
-// Predefined color palette
+// Predefined color palette (Expanded to 20+ colors)
 const callColors = [
-    '#3B82F6', // Blue
-    '#10B981', // Emerald
-    '#F59E0B', // Amber
-    '#EF4444', // Red
-    '#8B5CF6', // Violet
-    '#EC4899', // Pink
-    '#6366F1', // Indigo
+    '#3B82F6', // Blue-500
+    '#10B981', // Emerald-500
+    '#F59E0B', // Amber-500
+    '#EF4444', // Red-500
+    '#8B5CF6', // Violet-500
+    '#EC4899', // Pink-500
+    '#6366F1', // Indigo-500
+    '#14B8A6', // Teal-500
+    '#F97316', // Orange-500
+    '#84CC16', // Lime-500
+    '#22C55E', // Green-500
+    '#06B6D4', // Cyan-500
+    '#A855F7', // Purple-500
+    '#D946EF', // Fuchsia-500
+    '#F43F5E', // Rose-500
+    '#6B7280', // Gray-500 (Use as a color too)
+    '#4F46E5', // Indigo-600
+    '#059669', // Emerald-600
+    '#D97706', // Amber-600
+    '#DB2777', // Pink-600
+    '#7E22CE', // Purple-600
+    '#0D9488', // Teal-600
 ];
 
 const getCallColor = (name) => {
