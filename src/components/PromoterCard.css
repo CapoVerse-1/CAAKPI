@@ -1,0 +1,396 @@
+.promoter-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Further reduced gap */
+  padding: 12px; /* Further reduced padding */
+  width: auto;
+  /* Inherits card base style from index.css */
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px; /* Add gap */
+}
+
+.promoter-name {
+  margin: 0;
+  font-size: 1rem; /* Slightly smaller */
+  font-weight: 600;
+  color: #212529; /* Use primary text color */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Remove margin-right */
+}
+
+.card-actions {
+  display: flex;
+  gap: 5px; /* Reduced gap */
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  padding: 0; /* Remove padding for tighter hover */
+  margin: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d; /* Default icon color */
+  box-shadow: none;
+  line-height: 1; /* Prevent extra space */
+}
+
+.icon-button:hover {
+  color: #343a40; /* Darker on hover */
+}
+
+.icon-button .icon {
+    font-size: 1rem; /* Slightly smaller icon */
+    vertical-align: middle;
+}
+
+.icon-button .icon-delete {
+    color: #dc3545; /* Red */
+}
+.icon-button:hover .icon-delete {
+    color: #c82333;
+}
+.icon-button .icon-save {
+    color: #28a745; /* Green */
+}
+.icon-button:hover .icon-save {
+    color: #218838;
+}
+
+.icon-button .icon-save:hover {
+    color: #218838;
+}
+
+/* NEW: Style for the checkmark icon after copying */
+.icon-button .icon-copied {
+    color: #198754; /* Use success green */
+    /* Optionally disable hover effect */
+    /* pointer-events: none; */
+}
+
+.icon-button.copied {
+    cursor: default;
+    /* Optionally change background or border slightly */
+    /* background-color: #e8f5e9; */
+}
+
+.promoter-details {
+    line-height: 1.3; /* Tighter line height */
+}
+
+.promoter-details p {
+  margin: 0; /* Remove margin for tighter layout */
+  font-size: 0.8rem;
+  color: #495057;
+  word-break: break-all; /* Allow breaking long emails */
+  display: flex; /* Align icon and text */
+  align-items: center;
+}
+
+.promoter-details p .detail-icon {
+    margin-right: 5px;
+    font-size: 0.95em;
+    flex-shrink: 0; /* Prevent icon shrinking */
+    color: #6c757d; /* Use secondary text color for icon */
+}
+
+.card-divider {
+  border: none;
+  border-top: 1px solid #e9ecef; /* Lighter divider */
+  margin: 6px 0; /* Further reduced margin */
+}
+
+.generated-email-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* Further reduced gap */
+}
+
+.email-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.email-header h4 {
+  margin: 0;
+  font-size: 0.85rem; /* Smaller heading */
+  font-weight: 600; /* Slightly bolder */
+  color: #343a40;
+}
+
+.email-actions {
+  display: flex;
+  gap: 8px; /* Adjust icon button gap */
+}
+
+.email-tags {
+    margin-bottom: 5px;
+    line-height: 1;
+}
+
+.model-tag {
+    /* Apply primary button styles */
+    display: inline-block; /* Needed for padding/background */
+    background-color: #3B82F6; /* Match .button-primary */
+    color: white;
+    border: 1px solid #3B82F6;
+    padding: 3px 8px; /* Adjust padding for tag look */
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 6px; /* Increased roundness */
+    line-height: 1.3;
+    text-align: center;
+}
+
+.subject-line {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 2px 0;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  text-align: left;
+}
+
+.email-body {
+    position: relative; /* Needed if absolute positioning children */
+}
+
+/* NEW: Wrapper for textarea animation */
+.textarea-wrapper {
+    max-height: 0;
+    overflow: hidden;
+    /* Adjusted duration for a slightly slower, dynamic feel */
+    transition: max-height 0.7s ease-in-out; 
+}
+
+.textarea-wrapper.expanded {
+    max-height: 2000px; /* Increased max-height further just in case */
+}
+
+.email-body textarea {
+    width: 100%;
+    height: auto; 
+    font-size: 0.8rem;
+    padding: 10px 12px; /* Slightly increase padding */
+    box-sizing: border-box;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    resize: vertical; 
+    line-height: 1.5;
+    display: block; 
+    overflow-y: hidden; /* Hide internal scrollbar initially */
+    /* Add min-height when expanded to prevent collapsing too small */
+    /* min-height: 100px; */ /* Re-add a min-height if desired after expansion */
+}
+
+.textarea-wrapper.expanded textarea {
+    /* Allow scrolling only when expanded */
+    overflow-y: auto; 
+    min-height: 300px; /* Significantly increased minimum expanded height */
+}
+
+.email-body textarea:read-only {
+  background-color: #f8f9fa;
+  cursor: default;
+  border-color: #e9ecef;
+}
+
+.email-body textarea.editing {
+  border-color: #86b7fe;
+}
+
+/* Styles for placeholder when email not generated */
+.email-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70px; /* Match textarea min-height */
+    background-color: #f8f9fa;
+    border: 1px dashed #ced4da; /* Dashed border indication */
+    border-radius: 6px;
+    padding: 10px;
+}
+
+/* Ensure static placeholder also has correct radius */
+.email-placeholder.static-placeholder {
+    border-radius: 6px;
+}
+
+/* Loading state */
+.email-placeholder.loading {
+    color: #adb5bd; /* Lighter base color */
+    font-style: normal; /* Remove italic */
+    cursor: default;
+    border-style: solid;
+    border-color: #e9ecef; /* Lighter border */
+    flex-direction: column; 
+    gap: 6px; /* Slightly reduced gap */
+    background-color: #fdfdfe; /* Very light background */
+}
+
+.spinner-icon {
+    font-size: 1.8rem; /* Slightly larger spinner */
+    animation: spin 1.2s linear infinite; /* Slightly faster spin */
+    color: #6c757d; /* Spinner color */
+}
+
+/* Make text subtle */
+.loading-text {
+    font-size: 0.75rem;
+    color: #adb5bd; /* Light gray, matching border */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.generate-button {
+    /* Uses .button-secondary styles from index.css */
+    padding: 6px 10px; /* Slightly smaller padding */
+    font-size: 0.8rem;
+}
+
+/* NEW: Container for Send/Sent button */
+.send-button-container {
+    display: flex;
+    justify-content: flex-end; /* Align button to the right */
+    margin-top: 8px; /* Space above button */
+}
+
+/* Styles for the Send/Sent button itself */
+.send-action-button {
+    /* Inherits base button styles */
+    padding: 6px 12px; /* Specific padding */
+    font-size: 0.85rem;
+}
+
+.send-action-button.sent {
+    /* Specific styles for the sent state if needed beyond .button-success:disabled */
+    /* For example, slightly different font weight or icon color */
+}
+
+/* NEW: Contact and Stats Layout */
+.promoter-contact-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Space between email and stats block */
+}
+
+/* NEW: Stats Section Styles */
+.promoter-stats {
+    display: grid;
+    /* grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); */ /* OLD: Responsive columns */
+    grid-template-columns: 1fr 1fr 1fr; /* NEW: Fixed 3 equal columns */
+    gap: 10px; /* Adjust gap slightly for fixed columns */
+    padding: 8px;
+    background-color: #f8f9fa;
+    border-radius: 6px; /* Increased roundness */
+    border: 1px solid #e9ecef;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.2;
+    overflow: hidden;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    color: #6c757d;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap; /* Prevent label wrapping */
+    justify-content: center;
+}
+
+.stat-label .stat-icon {
+    margin-right: 3px;
+    font-size: 0.85em;
+}
+
+.stat-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    /* Default color set in helper function/inline style */
+    white-space: nowrap; /* Prevent value wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis if value is too long */
+}
+
+/* Stat Colors */
+.stat-good {
+    color: #198754; /* Green */
+}
+
+.stat-ok {
+    color: #fd7e14; /* Orange */
+}
+
+.stat-bad {
+    color: #dc3545; /* Red */
+}
+
+.promoter-card.generating {
+  /* Optional: slightly change background or border during generation */
+  /* background-color: #fcfcfd; */
+}
+
+.generate-button:disabled {
+    cursor: not-allowed;
+    filter: brightness(85%) grayscale(30%);
+}
+
+/* NEW: Styles for clickable email */
+.clickable-email {
+    cursor: pointer;
+    transition: color 0.15s ease-in-out;
+    display: inline-flex; /* Ensure it fits content */
+    align-items: center;
+    /* Remove default paragraph margin if needed */
+    margin: 0; 
+}
+
+.clickable-email:hover {
+    color: #0b5ed7; /* Indicate clickability on hover */
+}
+
+.clickable-email .detail-icon {
+    margin-right: 5px;
+    font-size: 0.95em;
+    flex-shrink: 0; 
+    color: #6c757d; 
+}
+
+/* Style for the temporary checkmark */
+.icon-copied-feedback {
+    color: #198754 !important; /* Green, use important if needed to override base */
+}
+
+/* Add style for the green checkmark on email address copy */
+.promoter-details .icon-copied {
+  color: #28a745; /* Bootstrap success green */
+  transition: color 0.1s ease-in-out;
+}
+
+.icon-button.copied .icon {
+  /* Styles for copied email body icon (if any specific needed) */
+} 

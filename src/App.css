@@ -1,0 +1,279 @@
+.App {
+  max-width: 1600px; /* Limit overall width */
+  margin: 0 auto; /* Center the app */
+  padding: 20px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #dee2e6; /* Match card border color */
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.6rem; /* Slightly smaller */
+  font-weight: 600;
+  color: #343a40; /* Slightly softer black */
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Ensure dropzone matches updated button style */
+.button-like-dropzone {
+  /* Inherits most styles from .button.button-primary */
+  /* Explicitly override if needed, but base styles should cover it */
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  /* Add gap if icon exists inside */
+  gap: 6px;
+}
+
+.button-like-dropzone:hover {
+  filter: brightness(95%);
+}
+
+.button-like-dropzone span {
+    /* No specific style needed now */
+}
+
+/* NEW: Style for icons inside header buttons */
+.header-actions .button-icon {
+    font-size: 1.1em; /* Adjust icon size relative to button text */
+    /* vertical-align: text-bottom; */ /* Alternative alignment */
+}
+
+/* Style drag over */
+.button-like-dropzone[data-drag-over="true"] {
+    border-style: dashed;
+    filter: brightness(90%); /* Darken slightly when dragging over */
+}
+
+/* NEW: Settings Button Specifics */
+.settings-button {
+    padding: 8px 10px; /* Make it slightly more square */
+}
+
+.settings-button .button-icon {
+    margin: 0; /* Center icon if no text */
+}
+
+/* Ensure spinner animation applies */
+.header-actions .button-icon.spinner {
+    margin: 0; /* Override any specific margins if needed */
+    animation: spin 1.5s linear infinite;
+}
+
+main {
+  margin-top: 20px;
+}
+
+.error-message {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c2c7;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.info-message {
+    color: #6c757d;
+    text-align: center;
+    /* Remove margin-top, centering handled by container */
+    /* margin-top: 40px; */ 
+    font-size: 1rem; /* Keep font size reasonable */
+    padding: 20px; /* Add some padding */
+}
+
+/* NEW: Container for the empty outreach message */
+.empty-outreach-message-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertical centering */
+    align-items: center;    /* Horizontal centering */
+    min-height: 300px;       /* Give it some height */
+    flex-grow: 1;          /* Allow it to take available space */
+}
+
+/* Navigation */
+.header-controls {
+    display: flex;
+    justify-content: space-between; /* Push nav and actions apart */
+    align-items: center;
+    width: 100%; /* Take full width */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 15px;
+}
+
+.main-nav {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-button {
+    /* Inherit base button styles but customize */
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+}
+
+.nav-button:hover {
+    background-color: #e9ecef;
+    filter: none; /* Override base hover */
+}
+
+.nav-button.active {
+    background-color: #6c757d; /* Use secondary color */
+    border-color: #6c757d;
+    color: white;
+    font-weight: 600;
+}
+
+.nav-button svg {
+    margin-right: 5px;
+    vertical-align: text-bottom;
+}
+
+/* Style the Save button container */
+.save-button-container {
+    display: flex;
+    justify-content: center; /* Center the button */
+    padding: 25px 0 10px 0; /* Add some padding around it */
+    border-top: 1px solid #e9ecef; /* Separator */
+    margin-top: 20px;
+}
+
+.save-emails-button {
+    padding: 10px 25px; /* Make button larger */
+    font-size: 1rem;
+}
+
+/* History View Specifics */
+.history-view {
+    margin-top: 20px;
+}
+
+.history-view h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #495057;
+}
+
+.history-controls {
+    display: flex;
+    /* Revert to center to center the main filter group */
+    justify-content: center; 
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    position: relative; /* Needed for absolute positioning of button */
+}
+
+/* Group for label, select, span */
+.history-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 15px; 
+    /* Remove properties related to previous centering attempt */
+    /* flex-grow: 1; */ 
+    /* justify-content: center; */ 
+}
+
+.history-controls label {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Remove styles for the old select element */
+/*
+.history-controls select {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    min-width: 200px;
+}
+*/
+
+.history-controls span {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* NEW: Styles for Mark Active/Inactive buttons */
+.mark-inactive-button, 
+.mark-active-button {
+    /* Keep transparent styling */
+    background-color: transparent !important; 
+    border: 1px solid #212529 !important; 
+    color: #212529 !important; 
+    padding: 6px 12px; 
+    font-size: 0.9rem; 
+    opacity: 0.8; 
+    transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    
+    /* Add absolute positioning */
+    position: absolute;
+    right: 15px; /* Align to right padding */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.mark-inactive-button:hover,
+.mark-active-button:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.05) !important; 
+    color: #000000 !important; 
+}
+
+/* Styles for read-only cards */
+.promoter-card.read-only {
+  /* Optional: Subtle visual difference for read-only cards */
+  /* background-color: #fafafa; */
+  /* opacity: 0.9; */
+}
+
+.read-only-textarea {
+    background-color: #f8f9fa; /* Match other read-only fields */
+    cursor: text; /* Normal text cursor */
+}
+
+/* Ensure history list uses same grid */
+.history-list {
+    /* Inherits .card-list styles */
+}
+
+/* NEW: Styles for date headers in history */
+.history-date-header {
+    grid-column: 1 / -1; /* Make header span all grid columns */
+    margin-top: 40px; /* Increased space ABOVE the date */
+    margin-bottom: 10px; /* Reduced space between date and its cards */
+    padding-bottom: 6px; 
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #495057; 
+    border-bottom: 1px solid #dee2e6; 
+    text-align: left; 
+}
+
+/* Ensure first date header doesn't have excessive top margin */
+.history-list > .history-date-header:first-child {
+    margin-top: 20px; /* Adjusted top margin for the very first header */
+}
+
+.card-list.history-list {
+  /* Existing styles... */
+} 

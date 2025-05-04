@@ -1,0 +1,157 @@
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it's on top */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out; /* Faster transition */
+}
+
+/* Add class when modal is open */
+.modal-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  transform: scale(0.95);
+  transition: transform 0.2s ease-in-out;
+}
+
+.modal-backdrop.open .modal-content {
+    transform: scale(1);
+}
+
+.modal-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 5px;
+  line-height: 1;
+}
+
+.modal-close-button:hover {
+  color: #343a40;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  color: #343a40;
+}
+
+.modal-dropzone {
+  border: 2px dashed #adb5bd; /* Dashed gray border */
+  border-radius: 8px;
+  padding: 40px 20px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  position: relative; /* Needed for potential overlay/spinner later */
+}
+
+.modal-dropzone:hover,
+.modal-dropzone.drag-over /* Add this class on drag over */
+{
+  border-color: #3B82F6; /* Blue border on hover/drag */
+  background-color: #eff6ff; /* Very light blue background */
+}
+
+.modal-drop-icon {
+  font-size: 3rem;
+  color: #9ca3af; /* Lighter gray */
+  margin-bottom: 10px;
+}
+
+.modal-dropzone p {
+  margin: 5px 0;
+  color: #4b5563; /* Darker gray text */
+  font-weight: 500;
+}
+
+/* NEW: Download template button */
+.download-template-button {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #3B82F6; /* Blue link color */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.download-template-button:hover {
+    text-decoration: underline;
+    color: #2563EB;
+}
+
+/* NEW: File dropped state */
+.file-dropped-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0; /* Adjust padding */
+}
+
+.file-dropped-state .modal-drop-icon.success {
+    color: #10B981; /* Green check */
+    font-size: 2.5rem; /* Slightly smaller */
+}
+
+.file-dropped-state p {
+    font-weight: 500;
+    color: #374151; /* Darker text */
+}
+
+.dropped-filename {
+    font-size: 0.9rem;
+    color: #4b5563;
+    background-color: #f3f4f6; /* Light background */
+    padding: 5px 10px;
+    border-radius: 6px;
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* NEW: Generate Cards Button */
+.generate-cards-button {
+    margin-top: 20px;
+    /* Uses .button-primary styles */
+}
+
+.modal-instructions {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 15px;
+} 

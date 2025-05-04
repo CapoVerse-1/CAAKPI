@@ -1,0 +1,105 @@
+.history-stats-container {
+    display: flex;
+    justify-content: space-around; /* Distribute groups evenly */
+    align-items: flex-start; /* Align tops of groups */
+    background-color: #f8f9fa; /* Light background */
+    padding: 15px 20px; /* Padding */
+    margin-bottom: 25px; /* Space below stats, before filter */
+    border-radius: 8px;
+    border: 1px solid #dee2e6; /* Border */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 20px; /* Gap between groups when wrapped */
+}
+
+.stat-group {
+    flex: 1; /* Allow groups to grow */
+    min-width: 180px; /* Minimum width before wrapping */
+    text-align: center; /* Center text within group */
+}
+
+.stat-group h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 1px solid #e9ecef; /* Separator below title */
+    padding-bottom: 5px;
+}
+
+.stat-group p {
+    margin: 4px 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: #343a40; /* Default darker color for the value */
+    margin-left: 5px;
+}
+
+/* Add Stat Colors */
+.stat-value.stat-good {
+    color: #198754; /* Green */
+}
+
+.stat-value.stat-ok {
+    color: #fd7e14; /* Orange */
+}
+
+.stat-value.stat-bad {
+    color: #dc3545; /* Red */
+}
+
+/* Styles for percentage change indicator */
+.stat-change {
+    margin-left: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 1px 4px;
+    border-radius: 4px;
+    vertical-align: middle;
+    background-color: #e9ecef; /* Neutral background */
+    color: #6c757d; /* Default neutral text color */
+}
+
+/* Specific colors only affect text */
+.stat-change.change-up {
+    color: #198754; /* Green text */
+}
+
+.stat-change.change-down {
+    color: #dc3545; /* Red text */
+}
+
+.stat-change.change-neutral {
+    color: #6c757d; /* Gray text */
+}
+
+/* Styles for point difference indicator */
+.stat-difference {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 1px 4px;
+    border-radius: 4px;
+    vertical-align: middle;
+    opacity: 0.9; /* Keep opacity */
+    background-color: #e9ecef; /* Neutral background */
+    color: #6c757d; /* Default neutral text color */
+}
+
+/* Apply colors only to text */
+.stat-difference.stat-good {
+    color: #198754; /* Green text */
+}
+
+.stat-difference.stat-ok {
+    color: #fd7e14; /* Use standard orange text */
+}
+
+.stat-difference.stat-bad {
+    color: #dc3545; /* Red text */
+} 
