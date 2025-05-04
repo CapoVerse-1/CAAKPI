@@ -24,7 +24,7 @@ function CallsModal({
     };
 
     return (
-        <div className="modal-backdrop" onClick={onClose}>
+        <div className={`modal-backdrop ${isOpen ? 'visible' : ''}`} onClick={onClose}>
             <div className="modal-content calls-modal-content" onClick={(e) => e.stopPropagation()}>
                 <button className="modal-close-button" onClick={onClose}>
                     <FiX />
