@@ -110,9 +110,10 @@ function App() {
     }
   }, [userApiKey]);
 
-  // --- Helper: Generate Email API Call ---
-  const generateEmailForPromoter = async (promoter) => {
+  // --- Helper: Generate Email API Call (Wrap in useCallback) ---
+  const generateEmailForPromoter = useCallback(async (promoter) => {
     if (!openaiClient) {
+      // Throw or handle error appropriately
       throw new Error("OpenAI client is not initialized. Check API key in Settings.");
     }
 
@@ -142,12 +143,12 @@ function App() {
       return emailContent;
 
     } catch (apiError) {
-      console.error("OpenAI API Error for promoter:", promoter.id, apiError);
+      console.error("OpenAI API Error for promoter:", promoter?.id || 'unknown', apiError);
       // Extract more specific error message if available
       const errorMessage = apiError.response?.data?.error?.message || apiError.message || "Unknown API error";
       throw new Error(`API Error: ${errorMessage}`);
     }
-  };
+  }, [openaiClient]); // Dependency: openaiClient
 
   // --- File Processing Logic --- 
   const processFile = async (file) => {
