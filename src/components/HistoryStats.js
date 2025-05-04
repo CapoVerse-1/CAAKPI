@@ -1,8 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import './HistoryStats.css'; // We'll create this CSS file next
 import { getStatClass } from './PromoterCard'; // Import the reusable function
-// Import icons for change indicator
-import { FiArrowUp, FiArrowDown, FiMinus } from 'react-icons/fi';
 
 // Helper function to calculate average, ignoring null/undefined
 const calculateAverage = (entries, key) => {

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiEdit, FiTrash2, FiRefreshCw, FiCheck, FiCopy, FiSend, FiMail, FiInfo, FiTrendingUp, FiPercent, FiPieChart, FiZap } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiRefreshCw, FiCheck, FiCopy, FiSend, FiMail, FiTrendingUp, FiPercent, FiPieChart, FiZap } from 'react-icons/fi';
 import { CgSpinner } from 'react-icons/cg';
 import './PromoterCard.css';
 
@@ -66,12 +66,6 @@ function PromoterCard({
     if (isReadOnly) return;
     onUpdate(promoter.id, { generatedEmail: editedEmail });
     setIsEditingEmail(false);
-  };
-
-  const handleCancelEdit = (e) => {
-    if (emailTextAreaRef.current && !emailTextAreaRef.current.contains(e.target)) {
-      // For now, require explicit save or escape
-    }
   };
 
   const handleKeyDown = (e) => {

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { FiUpload, FiPlus, FiZap, FiSettings, FiPauseCircle, FiPlayCircle, FiLoader, FiDatabase, FiSend as FiOutreach, FiSave } from 'react-icons/fi'; // Added history/nav icons
+import { FiUpload, FiZap, FiSettings, FiPauseCircle, FiPlayCircle, FiLoader, FiDatabase, FiSend as FiOutreach, FiSave } from 'react-icons/fi'; // Added history/nav icons
 import * as XLSX from 'xlsx'; // Import xlsx library
 import OpenAI from "openai"; // Import OpenAI
 import './App.css';
@@ -290,7 +290,7 @@ function App() {
         return next;
       });
     }
-  }, [promoters, openaiClient]); // Keep dependencies
+  }, [promoters, openaiClient, generateEmailForPromoter]); // Add missing dependency
 
   // Generate All Emails - Refactored for Pause/Resume
   const handleGenerateAll = async () => {
@@ -428,18 +428,6 @@ function App() {
         // Optionally revert local state here
     }
   }, []);
-
-  // Placeholder - Actual sending logic needed
-  const handleSendEmail = useCallback((id) => {
-    const promoter = promoters.find(p => p.id === id);
-    if (promoter) {
-         alert(`Simulating sending email to ${promoter.email} - Sending logic not implemented.`);
-         // TODO: Implement actual email sending logic (e.g., API call)
-    } else {
-         alert("Promoter not found.");
-    }
-   
-  }, [promoters]);
 
   // NEW: Handler to delete a specific history entry
   const handleDeleteHistoryEntry = useCallback(async (historyId) => {
