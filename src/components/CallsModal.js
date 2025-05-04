@@ -2,6 +2,34 @@ import React, { useState } from 'react';
 import { FiX, FiTrash2, FiCheck } from 'react-icons/fi';
 import './CallsModal.css';
 
+// Simple hash function to get a number from a string
+const simpleHash = (str) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return Math.abs(hash);
+};
+
+// Predefined color palette
+const callColors = [
+    '#3B82F6', // Blue
+    '#10B981', // Emerald
+    '#F59E0B', // Amber
+    '#EF4444', // Red
+    '#8B5CF6', // Violet
+    '#EC4899', // Pink
+    '#6366F1', // Indigo
+];
+
+const getCallColor = (name) => {
+    if (!name) return '#6b7280'; // Default gray if no name
+    const hash = simpleHash(name);
+    return callColors[hash % callColors.length];
+};
+
 function CallsModal({ 
     isOpen, 
     onClose, 
@@ -52,6 +80,10 @@ function CallsModal({
                             {scheduledCalls.length > 0 ? (
                                 scheduledCalls.map(call => (
                                     <li key={call.id}>
+                                        <span 
+                                            className="call-color-bar" 
+                                            style={{ backgroundColor: getCallColor(call.promoter_name) }}
+                                        ></span>
                                         <span className="call-promoter-name">{call.promoter_name}</span>
                                         <span className="call-timestamp">Scheduled: {formatTimestamp(call.created_at)}</span>
                                         <div className="call-actions">
@@ -83,9 +115,12 @@ function CallsModal({
                             {completedCalls.length > 0 ? (
                                 completedCalls.map(call => (
                                     <li key={call.id}>
+                                        <span 
+                                            className="call-color-bar" 
+                                            style={{ backgroundColor: getCallColor(call.promoter_name) }}
+                                        ></span>
                                         <span className="call-promoter-name">{call.promoter_name}</span>
                                         <span className="call-timestamp">Completed: {formatTimestamp(call.completed_at)}</span>
-                                        {/* No actions for completed calls currently */}
                                     </li>
                                 ))
                             ) : (
