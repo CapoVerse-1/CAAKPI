@@ -1,0 +1,112 @@
+/* Inherit base modal styles but add specifics */
+.calls-modal-content {
+    width: 90%;
+    max-width: 600px; /* Limit width */
+    min-height: 400px; /* Ensure decent height */
+    display: flex;
+    flex-direction: column;
+}
+
+.calls-modal-content h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #343a40;
+}
+
+.modal-tabs {
+    display: flex;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 15px;
+}
+
+.tab-button {
+    padding: 10px 15px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #6c757d;
+    border-bottom: 3px solid transparent; /* Placeholder for active state */
+    margin-bottom: -1px; /* Overlap border */
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.tab-button:hover {
+    color: #495057;
+}
+
+.tab-button.active {
+    color: #0d6efd; /* Primary color */
+    border-bottom-color: #0d6efd;
+    font-weight: 600;
+}
+
+.modal-tab-content {
+    flex-grow: 1; /* Allow content to fill space */
+    overflow-y: auto; /* Add scroll if list is long */
+    padding-right: 10px; /* Space for scrollbar */
+}
+
+.calls-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.calls-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 5px; /* Padding within list items */
+    border-bottom: 1px solid #e9ecef; /* Separator */
+}
+
+.calls-list li:last-child {
+    border-bottom: none;
+}
+
+.call-promoter-name {
+    font-weight: 500;
+    color: #343a40;
+    flex-basis: 50%; /* Allocate space */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.call-timestamp {
+    font-size: 0.8rem;
+    color: #6c757d;
+    flex-basis: 35%; /* Allocate space */
+    text-align: right;
+}
+
+.call-actions {
+    display: flex;
+    gap: 10px;
+    flex-basis: 15%; /* Allocate space */
+    justify-content: flex-end;
+}
+
+.call-actions .icon-button {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+.call-actions .icon-button:hover {
+    color: #343a40;
+}
+
+.call-complete-button:hover {
+    color: #198754; /* Green on hover */
+}
+
+.call-delete-button:hover {
+    color: #dc3545; /* Red on hover */
+}
+
+.no-calls-message {
+    text-align: center;
+    color: #6c757d;
+    padding: 20px;
+    justify-content: center;
+} 

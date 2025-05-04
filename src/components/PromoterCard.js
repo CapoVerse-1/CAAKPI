@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiEdit, FiTrash2, FiRefreshCw, FiCheck, FiCopy, FiSend, FiMail, FiTrendingUp, FiPercent, FiPieChart, FiZap } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiRefreshCw, FiCheck, FiCopy, FiSend, FiMail, FiTrendingUp, FiPercent, FiPieChart, FiZap, FiPhoneCall } from 'react-icons/fi';
 import { CgSpinner } from 'react-icons/cg';
 import './PromoterCard.css';
 
@@ -32,6 +32,7 @@ function PromoterCard({
     onUpdate, 
     onRegenerate, 
     onToggleMarkSent,
+    onScheduleCall,
     isGenerating, 
     isReadOnly,
     isMarkedSent
@@ -40,9 +41,11 @@ function PromoterCard({
   const [editedEmail, setEditedEmail] = useState(promoter.generatedEmail || '');
   const [isCopied, setIsCopied] = useState(false);
   const [isEmailCopied, setIsEmailCopied] = useState(false);
+  const [isCallScheduledFeedback, setIsCallScheduledFeedback] = useState(false);
   const emailTextAreaRef = useRef(null);
   const copyTimeoutRef = useRef(null);
   const emailCopyTimeoutRef = useRef(null);
+  const callScheduleTimeoutRef = useRef(null);
 
   useEffect(() => {
     setEditedEmail(promoter.generatedEmail || '');
@@ -122,9 +125,29 @@ function PromoterCard({
     };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (callScheduleTimeoutRef.current) {
+        clearTimeout(callScheduleTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleMarkSentToggle = () => {
     if (isReadOnly) return;
     onToggleMarkSent(promoter.id);
+  };
+
+  const handleScheduleCallClick = () => {
+    if (isReadOnly || !onScheduleCall) return;
+    
+    onScheduleCall(promoter.id, promoter.name);
+    
+    setIsCallScheduledFeedback(true);
+    if (callScheduleTimeoutRef.current) clearTimeout(callScheduleTimeoutRef.current);
+    callScheduleTimeoutRef.current = setTimeout(() => {
+      setIsCallScheduledFeedback(false);
+    }, 1500);
   };
 
   const mcEtClass = getStatClass('MC/ET', promoter.mc_et);
@@ -179,6 +202,14 @@ function PromoterCard({
           <h4>Generated Email</h4>
           {!isReadOnly && (
             <div className="email-actions">
+              <button 
+                onClick={handleScheduleCallClick} 
+                className={`icon-button call-schedule-button ${isCallScheduledFeedback ? 'feedback' : ''}`} 
+                title="Schedule Call"
+                disabled={isCallScheduledFeedback}
+              >
+                {isCallScheduledFeedback ? <FiCheck className="icon icon-copied"/> : <FiPhoneCall className="icon" />}
+              </button>
               <button onClick={() => onRegenerate(promoter.id)} className="icon-button" title="Generate/Regenerate Email" disabled={isGenerating || isCopied}>
                 <FiRefreshCw className="icon" />
               </button>

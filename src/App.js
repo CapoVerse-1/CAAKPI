@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { FiUpload, FiZap, FiSettings, FiPauseCircle, FiPlayCircle, FiLoader, FiDatabase, FiSend as FiOutreach, FiSave } from 'react-icons/fi'; // Added history/nav icons
+import { FiUpload, FiZap, FiSettings, FiPauseCircle, FiPlayCircle, FiLoader, FiDatabase, FiSend as FiOutreach, FiSave, FiPhone } from 'react-icons/fi'; // Added history/nav icons
 import * as XLSX from 'xlsx'; // Import xlsx library
 import OpenAI from "openai"; // Import OpenAI
 import './App.css';
@@ -9,6 +9,7 @@ import SettingsPanel from './components/SettingsPanel'; // Import SettingsPanel
 import HistoryStats from './components/HistoryStats'; // Import the new stats component
 import Select from 'react-select'; // Import react-select
 import { supabase } from './supabaseClient'; // Import Supabase client
+import CallsModal from './components/CallsModal'; // Import the CallsModal component
 
 // Function to initialize OpenAI client based on available keys
 const initializeOpenAI = (uiKey, envKey) => {
@@ -27,6 +28,11 @@ function App() {
   const [promoters, setPromoters] = useState([]); // Will fetch from outreach_promoters
   const [historyEntries, setHistoryEntries] = useState([]); // Will fetch from promoter_history
   const [inactivePromoters, setInactivePromoters] = useState(new Set()); // Will fetch from inactive_promoters
+
+  // NEW: State for calls feature
+  const [scheduledCalls, setScheduledCalls] = useState([]);
+  const [completedCalls, setCompletedCalls] = useState([]);
+  const [isCallsModalOpen, setIsCallsModalOpen] = useState(false);
 
   // UI / Control State
   const [currentPage, setCurrentPage] = useState('outreach'); // 'outreach' or 'history'
@@ -49,7 +55,7 @@ function App() {
   const fileInputRef = useRef(null); // Ref for the hidden file input
 
   // --- Effects --- 
-  // NEW: Effect to fetch initial data from Supabase
+  // Updated Effect to fetch ALL initial data from Supabase
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -85,6 +91,22 @@ function App() {
         if (inactiveError) throw inactiveError;
         setInactivePromoters(new Set(inactiveData.map(i => i.promoter_name)) || new Set());
 
+        // NEW: Fetch scheduled calls (oldest first)
+        const { data: scheduledData, error: scheduledError } = await supabase
+          .from('scheduled_calls')
+          .select('*') 
+          .order('created_at', { ascending: true });
+        if (scheduledError) throw scheduledError;
+        setScheduledCalls(scheduledData || []);
+
+        // NEW: Fetch completed calls (newest first)
+        const { data: completedData, error: completedError } = await supabase
+          .from('completed_calls')
+          .select('*') 
+          .order('completed_at', { ascending: false });
+        if (completedError) throw completedError;
+        setCompletedCalls(completedData || []);
+
       } catch (fetchError) {
         console.error("Error fetching data from Supabase:", fetchError);
         setError(`Failed to load data: ${fetchError.message}. Check Supabase connection and RLS policies.`);
@@ -92,6 +114,8 @@ function App() {
         setPromoters([]);
         setHistoryEntries([]);
         setInactivePromoters(new Set());
+        setScheduledCalls([]); // Clear calls state on error too
+        setCompletedCalls([]); // Clear calls state on error too
       } finally {
         setIsLoading(false);
       }
@@ -740,6 +764,93 @@ function App() {
     }
   }, []);
 
+  // NEW: Handlers for Calls Modal
+  const handleOpenCallsModal = () => setIsCallsModalOpen(true);
+  const handleCloseCallsModal = () => setIsCallsModalOpen(false);
+
+  // --- Call Feature Handlers ---
+  const handleScheduleCall = useCallback(async (promoterId, promoterName) => {
+    try {
+      const { data, error } = await supabase
+        .from('scheduled_calls')
+        .insert({ promoter_id: promoterId, promoter_name: promoterName })
+        .select() // Select the inserted row to get its data
+        .single(); // Expecting only one row back
+
+      if (error) throw error;
+
+      // Update local state
+      if (data) {
+        setScheduledCalls(prev => [...prev, data].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))); // Keep sorted oldest first
+      }
+      // Feedback is handled within PromoterCard
+    } catch (dbError) {
+      console.error("Failed to schedule call:", dbError);
+      setError(`Failed to schedule call: ${dbError.message}`);
+    }
+  }, []);
+
+  const handleDeleteCall = useCallback(async (callId) => {
+    // Optimistic UI
+    const originalScheduled = [...scheduledCalls];
+    setScheduledCalls(prev => prev.filter(call => call.id !== callId));
+
+    try {
+      const { error } = await supabase
+        .from('scheduled_calls')
+        .delete()
+        .eq('id', callId);
+
+      if (error) throw error;
+    } catch (dbError) {
+      console.error("Failed to delete scheduled call:", dbError);
+      setError(`Failed to delete call: ${dbError.message}`);
+      setScheduledCalls(originalScheduled); // Revert
+    }
+  }, [scheduledCalls]);
+
+  const handleCompleteCall = useCallback(async (callId, promoterName, promoterId) => {
+    // Optimistic UI
+    const originalScheduled = [...scheduledCalls];
+    const callToMove = scheduledCalls.find(call => call.id === callId);
+    setScheduledCalls(prev => prev.filter(call => call.id !== callId));
+
+    try {
+      // 1. Insert into completed_calls
+      const { error: insertError } = await supabase
+        .from('completed_calls')
+        .insert({ 
+          promoter_id: promoterId, 
+          promoter_name: promoterName 
+          // completed_at is handled by DB default
+        });
+      if (insertError) throw insertError;
+
+      // 2. Delete from scheduled_calls
+      const { error: deleteError } = await supabase
+        .from('scheduled_calls')
+        .delete()
+        .eq('id', callId);
+      if (deleteError) throw deleteError;
+      
+      // Update completed calls state (no need to select, just add optimistically if needed)
+      // Assuming completion timestamp isn't immediately needed, rely on next fetch
+      // Or, if you need it immediately, you might need to fetch the completed calls again
+      if (callToMove) { // Make sure we found the call
+           setCompletedCalls(prev => [
+               { ...callToMove, completed_at: new Date().toISOString(), id: `temp-${callId}` }, // Add temp data for immediate display
+                ...prev
+            ].sort((a,b) => new Date(b.completed_at) - new Date(a.completed_at))); // Keep sorted newest first
+       }
+
+    } catch (dbError) {
+      console.error("Failed to complete call:", dbError);
+      setError(`Failed to complete call: ${dbError.message}`);
+      setScheduledCalls(originalScheduled); // Revert scheduled calls
+      // Potentially need to revert completed calls if added optimistically
+    }
+  }, [scheduledCalls]);
+
   return (
     <div className="App">
       {/* Render Modal */} 
@@ -755,6 +866,15 @@ function App() {
           onClose={handleCloseSettings}
           onSave={handleSaveApiKey}
           initialApiKey={userApiKey} // Pass current key to initialize input
+      />
+      {/* NEW: Render Calls Modal */}
+      <CallsModal
+          isOpen={isCallsModalOpen}
+          onClose={handleCloseCallsModal}
+          scheduledCalls={scheduledCalls}
+          completedCalls={completedCalls}
+          onDeleteCall={handleDeleteCall} 
+          onCompleteCall={handleCompleteCall}
       />
 
       <header className="app-header">
@@ -778,6 +898,10 @@ function App() {
           <div className="header-actions">
             <button className="button-primary" onClick={handleOpenModal} title="Import Excel"> 
               <FiUpload className="button-icon"/> <span>Import</span>
+            </button>
+            {/* Add Calls button */}
+            <button className="button-secondary calls-button" onClick={handleOpenCallsModal} title="View Calls"> 
+              <FiPhone className="button-icon"/> <span>Calls ({scheduledCalls.length})</span>
             </button>
             <button 
               className={`button-tertiary ${generationStatus === 'running' ? 'generating' : ''}`}
@@ -812,6 +936,7 @@ function App() {
                     onUpdate={handleUpdatePromoter}
                     onRegenerate={handleGenerateEmail}
                     onToggleMarkSent={handleToggleMarkSent}
+                    onScheduleCall={handleScheduleCall}
                   />
                 ))}
               </div>
