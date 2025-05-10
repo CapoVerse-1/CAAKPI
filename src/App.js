@@ -639,7 +639,7 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
         // Revert UI if DB delete fails
         setPromoters(originalPromoters);
     }
-  }, [promoters]);
+  }, []);
 
   const handleUpdatePromoter = useCallback(async (id, updatedData) => {
     // Map internal state names to DB column names if needed

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiEdit, FiTrash2, FiRefreshCw, FiCheck, FiCopy, FiSend, FiMail, FiTrendingUp, FiPercent, FiPieChart, FiZap, FiPhoneCall, FiChevronDown, FiChevronUp, FiThumbsUp, FiSmile, FiMessageSquare, FiTrendingDown, FiMinus, FiSliders } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiRefreshCw, FiCheck, FiCopy, FiSend, FiMail, FiTrendingUp, FiPercent, FiPieChart, FiZap, FiPhoneCall, FiChevronDown, FiChevronUp, FiThumbsUp, FiSmile, FiMessageSquare, FiTrendingDown, FiSliders } from 'react-icons/fi';
 import { CgSpinner } from 'react-icons/cg';
 import './PromoterCard.css';
 
