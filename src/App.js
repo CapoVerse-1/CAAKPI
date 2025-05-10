@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { FiUpload, FiZap, FiSettings, FiPauseCircle, FiPlayCircle, FiLoader, FiDatabase, FiSend as FiOutreach, FiSave, FiPhone } from 'react-icons/fi'; // Added history/nav icons
+import { FiUpload, FiZap, FiSettings, FiPauseCircle, FiPlayCircle, FiLoader, FiDatabase, FiSend as FiOutreach, FiSave, FiPhone, FiAward } from 'react-icons/fi'; // Added history/nav icons
 import * as XLSX from 'xlsx'; // Import xlsx library
 import OpenAI from "openai"; // Import OpenAI
 import './App.css';
@@ -10,6 +10,7 @@ import HistoryStats from './components/HistoryStats'; // Import the new stats co
 import Select from 'react-select'; // Import react-select
 import { supabase } from './supabaseClient'; // Import Supabase client
 import CallsModal from './components/CallsModal'; // Import the CallsModal component
+import RanksModal from './components/RanksModal'; // Import the RanksModal component
 
 // Function to initialize OpenAI client based on available keys
 const initializeOpenAI = (uiKey, envKey) => {
@@ -23,6 +24,43 @@ const initializeOpenAI = (uiKey, envKey) => {
     return new OpenAI({ apiKey: keyToUse, dangerouslyAllowBrowser: true });
 };
 
+// NEW Helper function to calculate promoter rankings
+const calculateGlobalPromoterRankings = (promotersList) => {
+  const metrics = ['mc_et', 'tma_anteil', 'vl_share'];
+  let rankedList = promotersList.map(p => ({...p})); // Start with a deep copy of promoter objects
+
+  metrics.forEach(metricKey => {
+    // 1. Filter promoters with valid scores for the current metric and extract scores
+    const validScores = rankedList
+      .map(p => p[metricKey])
+      .filter(score => score !== null && score !== undefined && !isNaN(parseFloat(score)))
+      .map(score => parseFloat(score));
+
+    // 2. Get unique scores and sort them in descending order (higher is better)
+    const uniqueSortedScores = [...new Set(validScores)].sort((a, b) => b - a);
+
+    // 3. Create a map of score to rank (dense ranking)
+    const scoreToRankMap = new Map();
+    uniqueSortedScores.forEach((score, index) => {
+      scoreToRankMap.set(score, index + 1); // Rank is 1-based
+    });
+
+    // 4. Assign ranks back to the promoters
+    rankedList = rankedList.map(p => {
+      const promoterScore = p[metricKey];
+      const numericScore = promoterScore !== null && promoterScore !== undefined && !isNaN(parseFloat(promoterScore))
+        ? parseFloat(promoterScore)
+        : null;
+      return {
+        ...p,
+        [`${metricKey}_rank`]: numericScore !== null ? scoreToRankMap.get(numericScore) : null,
+      };
+    });
+  });
+
+  return rankedList;
+};
+
 function App() {
   // Main state
   const [promoters, setPromoters] = useState([]); // Will fetch from outreach_promoters
@@ -33,6 +71,9 @@ function App() {
   const [scheduledCalls, setScheduledCalls] = useState([]);
   const [completedCalls, setCompletedCalls] = useState([]);
   const [isCallsModalOpen, setIsCallsModalOpen] = useState(false);
+
+  // NEW: State for Ranks Modal
+  const [isRanksModalOpen, setIsRanksModalOpen] = useState(false);
 
   // UI / Control State
   const [currentPage, setCurrentPage] = useState('outreach'); // 'outreach' or 'history'
@@ -65,10 +106,11 @@ function App() {
         const { data: outreachData, error: outreachError } = await supabase
           .from('outreach_promoters')
           .select('*')
-          .order('created_at', { ascending: true }); // Or order as needed
+          .order('created_at', { ascending: true });
         if (outreachError) throw outreachError;
-        // Map Supabase data to match app state structure (e.g., rename is_marked_sent)
-        setPromoters(outreachData.map(p => ({ ...p, isMarkedSent: p.is_marked_sent })) || []);
+        // Map Supabase data and calculate initial ranks
+        const initialPromoters = outreachData.map(p => ({ ...p, isMarkedSent: p.is_marked_sent })) || [];
+        setPromoters(calculateGlobalPromoterRankings(initialPromoters));
 
         // Fetch history entries
         const { data: historyData, error: historyError } = await supabase
@@ -135,44 +177,210 @@ function App() {
   }, [userApiKey]);
 
   // --- Helper: Generate Email API Call (Wrap in useCallback) ---
-  const generateEmailForPromoter = useCallback(async (promoter) => {
+  const generateEmailForPromoter = useCallback(async (promoterId, selectedMood = 'neutral') => {
     if (!openaiClient) {
-      // Throw or handle error appropriately
       throw new Error("OpenAI client is not initialized. Check API key in Settings.");
     }
+    const promoter = promoters.find(p => p.id === promoterId);
+    if (!promoter) {
+      console.warn(`Promoter with ID ${promoterId} not found during email generation. Skipping.`);
+      return null; // Indicate that this promoter should be skipped
+    }
 
-    // Construct the prompt (Placeholder - refine this significantly)
-    const prompt = `
-      Generate a brief, personalized outreach email introduction from 'Bossworks' to the company '${promoter.name}'.
-      Mention their potential interest based on these KPI indicators (interpret them contextually):
-      - MC/ET: ${promoter.mc_et ?? 'N/A'} (Value between 4.5-5.0 is ideal)
-      - TMA Anteil: ${promoter.tma_anteil ?? 'N/A'}% (Above 75% is ideal)
-      - VL Share: ${promoter.vl_share ?? 'N/A'}% (Above 10% is ideal)
+    const currentMonthName = new Date().toLocaleString('de-DE', { month: 'long' });
+    const pName = promoter.name;
+    const mcEtVal = promoter.mc_et !== null && promoter.mc_et !== undefined ? promoter.mc_et.toFixed(1) : 'N/A';
+    const mcEtRnk = promoter.mc_et_rank ?? 'N/A';
+    const tmaVal = promoter.tma_anteil !== null && promoter.tma_anteil !== undefined ? promoter.tma_anteil.toFixed(0) + '%' : 'N/A';
+    const vlVal = promoter.vl_share !== null && promoter.vl_share !== undefined ? promoter.vl_share.toFixed(0) + '%' : 'N/A';
+    const vlRnk = promoter.vl_share_rank ?? 'N/A';
 
-      Keep the email concise and professional. Start with "Hello," and end before the sign-off.
-      Subject line should be: CA KPIs
-      
-      Email Body:
-    `;
+    // Construct the base prompt
+    let prompt = `Du bist Teil einer Webapp, die automatisch E‑Mails an unsere externen Promotoren verschickt. Deine Aufgabe ist es, den E‑Mail-Text zu verfassen. Dabei beachtest du folgende Grundregeln:
+
+• Schreibe so menschlich und persönlich wie möglich, ohne unnötige AI‑artige Bindestriche (außer wenn sie Teil eines zusammengesetzten Wortes sind).
+• Verfasse die E‑Mails im Namen von Jack Parker, Junior Project Manager im Nespresso-Team.
+• Die Empfänger sind unsere externen Promotoren im Einzelhandel. Du bleibst stets motivierend, übertreibst aber nicht.
+• Ziel der E‑Mails ist es, zu mehr Engagement anzuspornen und unsere Verkaufszahlen zu verbessern.
+• Die E‑Mails sollen direkt kopierfertig sein.
+
+Aufbau der E‑Mail:
+
+1. Anrede: „Liebe" bzw. „Lieber" + ${pName}.
+
+2. Einleitung, z. B. „Ich darf dir heute deine ${currentMonthName} KPIs zukommen lassen."
+
+3. Kurzer motivierender Satz („Trotz [gegebenen Umständen] machst du das Beste draus und dafür ein großes Dankeschön unsererseits. 😊").
+
+4. Rückblick auf die Zahlen mit folgenden Daten in genau dieser Form:
+
+   MC/ET: ${mcEtVal} (Platz ${mcEtRnk})
+   TMA Anteil: ${tmaVal}
+   VL Share: ${vlVal} (Platz ${vlRnk})
+
+5. Bewertung:
+
+   * Bei MC/ET und VL Share jeweils das Ranking nennen diese info bekommst du im code (z. B. „Du bist in diesem Monat auf Platz 1" bzw. „auf Platz 30").
+   * Beim TMA-Anteil nur einordnen: einer der Besten, im Mittelfeld oder im unteren Drittel.
+   * Gehe auf die Plätze nur nochmal im Text ausführlicher ein (zusätzlich zur Auflistung oben), wenn die Person Top 3 ist ODER zu den niedrigsten 10 gehört. Erkläre dann, was die Zahlen bedeuten und ob Verbesserungspotenzial besteht oder ob es bereits super läuft. (Für die "niedrigsten 10" gehe von ca. 60 Promotoren gesamt aus, wie im Hintergrund erwähnt.)
+
+6. Abschließender motivierender Satz, der zum Weitermachen anregt.
+
+7. Grußformel IMMER!!!!!: „Liebe Grüße, dein Nespresso Team."
+
+Hintergrund:
+
+Wir sind eine Promotion-Agentur für Nespresso und beschäftigen 60 externe Promotoren, die in den Geschäften Nespresso-Produkte bewerben und verkaufen. Einmal im Monat erhalten wir die Performance-Zahlen unserer Promotoren, auf die sich deine E‑Mails beziehen.
+
+Definitionen der Kennzahlen:
+
+• MC/ET: Durchschnittlich verkaufte Kaffeemaschinen pro Einsatztag im letzten Monat. Werte über 4 sind gut.
+• VL Share: Anteil der verkauften Maschinen aus der Vertuo-Reihe (in %). Werte über 10 % sind solide.
+• TMA-Anteil: Anteil der Maschinen, die vor Ort gekauft und direkt beim Promotor eingelöst wurden (in %). Die restlichen Gutscheine wurden später in einer anderen Filiale eingelöst.
+
+Rankings:
+
+• MC/ET und VL Share: Nenne jeweils die Platzierung.
+• TMA-Anteil: Nenne nur eine Einordnung (Besten, Mittelfeld, unteres Drittel).
+
+Beispiele früherer E‑Mails (nur zur Orientierung – nicht als starre Vorlage):
+
+Sehr gute Performance:
+Liebe Cesira,
+
+ich darf dir heute deine Juli KPIs zukommen lassen.
+
+Trotz schwacher Frequenz im Sommer machst du das Beste draus und dafür ein großes Dankeschön unsererseits. 😊
+
+Hier ein Rückblick auf deine Juli-Zahlen.
+
+Du warst im Juli in allen Bereichen "TMA", "MC/ET" und "VL Share" einer der Besten.
+
+Du machst das super (wie immer) 😊
+
+Solltet ihr noch Tipps und Tricks brauchen, könnt ihr euch jederzeit bei uns melden. 😊
+
+Liebe Grüße, dein Nespresso Team
+
+---
+
+Gut, aber mit konstruktiver Kritik:
+Liebe Lubica,
+
+ich darf dir heute deine Juli KPIs zukommen lassen.
+
+Trotz schwacher Frequenz im Sommer machst du das Beste draus und dafür ein großes Dankeschön unsererseits. 😊
+
+Hier ein Rückblick auf deine Juli-Zahlen.
+
+Du warst im Juli in den Bereichen "TMA" und "MC/ET" im oberen Drittel. Im Bereich "VL Share" im unteren Drittel.
+
+Wir wissen, dass dein VL Share niedriger ist, weil du sehr viel verkaufst, aber ich denke, ein paar Prozentpunkte kannst du da noch rausholen. 😊
+
+Solltet ihr noch Tipps und Tricks brauchen, könnt ihr euch jederzeit bei uns melden. 😊
+
+Liebe Grüße, dein Nespresso Team
+
+---
+
+Mittelmäßige Performance:
+Lieber Florian,
+
+ich darf dir heute deine Juli KPIs zukommen lassen.
+
+Trotz schwacher Frequenz im Sommer machst du das Beste draus und dafür ein großes Dankeschön unsererseits. 😊
+
+Hier ein Rückblick auf deine Juli-Zahlen.
+
+Du warst in allen Bereichen "TMA", "VL Share" und "MC/ET" im unteren Drittel.
+
+Weißt du, woran das liegen könnte? Ist die Frequenz so schwach? Haben die Kunden kein Interesse?
+
+Solltet ihr noch Tipps und Tricks brauchen, könnt ihr euch jederzeit bei uns melden. 😊
+
+Liebe Grüße, dein Nespresso Team
+
+---
+
+Gemischte Performance:
+Lieber David,
+
+ich darf dir heute deine Juli KPIs zukommen lassen.
+
+Trotz schwacher Frequenz im Sommer machst du das Beste draus und dafür ein großes Dankeschön unsererseits. 😊
+
+Hier ein Rückblick auf deine Juli-Zahlen.
+
+Du warst in den Bereichen "VL Share" und "TMA" im oberen Drittel. Vor allem dein VL Share lässt sich sehen.
+Im Bereich "MC/ET" warst du im unteren Drittel und da müssen wir ansetzen.
+
+Solltet ihr noch Tipps und Tricks brauchen, könnt ihr euch jederzeit bei uns melden. 😊
+
+Liebe Grüße, dein Nespresso Team
+
+---
+
+Eher schlechte Performance:
+Lieber Alexander,
+
+ich darf dir heute deine Juli KPIs zukommen lassen.
+
+Trotz schwacher Frequenz im Sommer machst du das Beste draus und dafür ein großes Dankeschön unsererseits. 😊
+
+Hier ein Rückblick auf deine Juli-Zahlen.
+
+Du warst im Juli im Bereich "TMA" im oberen Drittel – eine Stärke, die du unbedingt halten solltest.
+Im Bereich "MC/ET" im Mittelfeld.
+Im Bereich "VL Share" im unteren Drittel und da müssen wir gemeinsam ansetzen.
+
+Solltet ihr noch Tipps und Tricks brauchen, könnt ihr euch jederzeit bei uns melden. 😊
+
+Liebe Grüße, dein Nespresso Team
+`;
+
+    // Add mood-specific additional prompt if a non-neutral mood is selected
+    if (selectedMood !== 'neutral') {
+      // Mood-specific prompts
+      const moodPrompts = {
+        beeindruckt: `Mood: Beeindruckt
+Bitte versuche, die E-Mail etwas mehr wertschätzend zu formulieren. Die Leistung war dieses Mal wirklich stark, deshalb darf ruhig mitschwingen, dass wir beeindruckt sind – aber bitte nicht zu überschwänglich. Es soll glaubwürdig bleiben und nicht übertrieben klingen. Kleine Formulierungen wie "starke Leistung" oder "beeindruckend" reichen völlig. Es geht darum, positives Feedback aufrichtig rüberzubringen.`,
+        
+        zufrieden: `Mood: Trotzdem zufrieden
+Die Zahlen sind nicht überragend, aber im Vergleich zu den Umständen okay. Bitte lass zwischen den Zeilen durchblicken, dass wir insgesamt zufrieden sind – auch wenn noch Luft nach oben ist. Du kannst gerne Formulierungen verwenden wie "unter den Bedingungen absolut solide". Der Ton darf zugewandt und unterstützend sein, aber nicht beschönigend. Ziel ist ein ehrliches, aber positives Signal.`,
+        
+        verbesserung: `Mood: Verbesserung
+Die Zahlen haben sich zum Vormonat verbessert, auch wenn sie noch nicht top sind. Bitte greif diesen Trend auf und erwähne subtil, dass es in die richtige Richtung geht. Vermeide übermäßiges Lob – es soll eher motivierend als belohnend klingen. Ein Satz wie "die Entwicklung ist klar positiv" oder "du bist auf einem guten Weg" wäre passend. Die Betonung liegt auf Fortschritt, nicht auf Perfektion.`,
+        
+        motivierend: `Mood: Motivierend (unzufrieden)
+Die Zahlen sind schwach und es gibt Gesprächsbedarf. Bitte halte den Ton freundlich und motivierend, aber formuliere klar, dass die Performance aktuell nicht passt. Wir wollen niemanden demotivieren – aber auch nichts schönreden. Ein Satz wie "lass uns gemeinsam schauen, woran es liegt" ist besser als direkte Kritik. Ziel ist es, zum Nachdenken und Mitmachen anzuregen.`,
+        
+        verschlechterung: `Mood: Verschlechterung
+Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sanft an, ohne zu direkt zu kritisieren. Es reicht, auf die Veränderung hinzuweisen und zur Reflexion einzuladen. Aussagen wie "die Zahlen sind etwas zurückgegangen" oder "du warst schon mal stärker" treffen den Ton. Wichtig ist, dass es unterstützend bleibt und nicht wertend wirkt.`
+      };
+
+      // Add the selected mood prompt to the base prompt
+      if (moodPrompts[selectedMood]) {
+        prompt = moodPrompts[selectedMood] + "\n\n" + prompt;
+      }
+    }
 
     try {
       const completion = await openaiClient.chat.completions.create({
         model: "gpt-4o", // Or the model specified in promoter.model
         messages: [{ role: "user", content: prompt }],
         temperature: 0.7,
-        max_tokens: 150, // Adjust as needed
+        max_tokens: 350, // Increased from 150
       });
 
       const emailContent = completion.choices[0]?.message?.content?.trim() || '';
       return emailContent;
 
     } catch (apiError) {
-      console.error("OpenAI API Error for promoter:", promoter?.id || 'unknown', apiError);
-      // Extract more specific error message if available
+      console.error(`OpenAI API Error for promoter ${promoter.name} (ID: ${promoter.id}):`, apiError);
       const errorMessage = apiError.response?.data?.error?.message || apiError.message || "Unknown API error";
-      throw new Error(`API Error: ${errorMessage}`);
+      throw new Error(`API Error for ${promoter.name}: ${errorMessage}`); // Re-throw to be caught by caller
     }
-  }, [openaiClient]); // Dependency: openaiClient
+  }, [promoters, openaiClient]); // Dependency: openaiClient
 
   // --- File Processing Logic --- 
   const processFile = async (file) => {
@@ -246,11 +454,12 @@ function App() {
       if (insertError) throw insertError;
 
       // Update local state with the data returned from Supabase (including IDs)
-      setPromoters(prev => [
-          ...prev, 
-          ...insertedData.map(p => ({ ...p, isMarkedSent: p.is_marked_sent }))
-      ]);
-      console.log(`Successfully imported and saved ${insertedData.length} promoters to Supabase.`);
+      setPromoters(prev => {
+          const newPromotersFromDb = insertedData.map(p => ({ ...p, isMarkedSent: p.is_marked_sent }));
+          const combinedPromoters = [...prev, ...newPromotersFromDb];
+          return calculateGlobalPromoterRankings(combinedPromoters);
+      });
+      console.log(`Successfully imported and saved ${insertedData.length} promoters to Supabase and updated ranks.`);
 
     } catch (err) {
         console.error("Error processing/uploading Excel file:", err);
@@ -274,48 +483,48 @@ function App() {
       setError(''); // Clear errors when closing modal manually
   };
 
-  const handleGenerateEmail = useCallback(async (id) => {
+  const handleGenerateEmail = useCallback(async (id, selectedMood = 'neutral') => {
     if (!openaiClient) {
         setError("OpenAI API Key not configured. Please add it in Settings.");
         return; 
     }
-    const promoterIndex = promoters.findIndex(p => p.id === id);
-    if (promoterIndex === -1) return;
-
-    // Set loading state for this specific card
     setGeneratingIds(prev => new Set(prev).add(id));
-    setError(''); // Clear previous errors
+    setError('');
 
     try {
-      const promoter = promoters[promoterIndex];
-      const generatedEmailContent = await generateEmailForPromoter(promoter);
-      
-      // UPDATE in Supabase
-      const { error: updateError } = await supabase
-          .from('outreach_promoters')
-          .update({ generated_email: generatedEmailContent })
-          .eq('id', id);
-      
-      if (updateError) throw updateError;
+      const generatedEmailContent = await generateEmailForPromoter(id, selectedMood); 
 
-      // Update local state
-      setPromoters(prevPromoters => 
-        prevPromoters.map(p => 
-          p.id === id ? { ...p, generatedEmail: generatedEmailContent } : p
-        )
-      );
-    } catch (err) {
-      console.error("Error generating/updating email:", err);
-      setError(`Failed for ${promoters[promoterIndex]?.name || 'promoter'}: ${err.message}`);
+      if (generatedEmailContent === null) {
+        // Promoter was not found by generateEmailForPromoter
+        console.error(`Promoter with ID ${id} not found when attempting single generation.`);
+        setError(`Failed for ID ${id}: Promoter not found. Could not generate email.`);
+      } else {
+        // UPDATE in Supabase
+        const { error: updateError } = await supabase
+            .from('outreach_promoters')
+            .update({ generated_email: generatedEmailContent })
+            .eq('id', id);
+        if (updateError) throw updateError;
+
+        // Update local state
+        setPromoters(prevPromoters => 
+          prevPromoters.map(p => 
+            p.id === id ? { ...p, generatedEmail: generatedEmailContent } : p
+          )
+        );
+      }
+    } catch (err) { // Catches other errors like API errors from generateEmailForPromoter
+      console.error(`Error during email generation process for ID ${id}:`, err);
+      // Use err.message which now includes the promoter's name if it was an API error, or is the generic message
+      setError(err.message); // Display the specific error message from the throw
     } finally {
-      // Remove loading state for this card
       setGeneratingIds(prev => {
         const next = new Set(prev);
         next.delete(id);
         return next;
       });
     }
-  }, [promoters, openaiClient, generateEmailForPromoter]); // Add missing dependency
+  }, [promoters, openaiClient, generateEmailForPromoter]);
 
   // Generate All Emails - Refactored for Pause/Resume
   const handleGenerateAll = async () => {
@@ -363,34 +572,39 @@ function App() {
             return; 
         }
 
-        const promoter = promotersToGenerate[i];
-        const currentId = promoter.id;
-        console.log(`[handleGenerateAll] Generating for ${promoter.name} (ID: ${currentId})...`);
+        const promoterToProcess = promotersToGenerate[i]; // Still get the item from the initial list
+        const currentId = promoterToProcess.id;
+        console.log(`[handleGenerateAll] Generating for ${promoterToProcess.name} (ID: ${currentId})...`);
         setGeneratingIds(prev => new Set(prev).add(currentId));
         
         try {
-            const generatedEmailContent = await generateEmailForPromoter(promoter);
-            
-            // Update in Supabase
-            const { error: updateError } = await supabase
-                .from('outreach_promoters')
-                .update({ generated_email: generatedEmailContent })
-                .eq('id', currentId);
-            if (updateError) throw updateError;
-            
-            // Update local state immediately
-            setPromoters(prevPromoters => 
-                prevPromoters.map(p => 
-                p.id === currentId ? { ...p, generatedEmail: generatedEmailContent } : p
-                )
-            );
-            console.log(`[handleGenerateAll] Successfully generated for ${promoter.name}`);
-        } catch (err) {
-            console.error(`Failed for ${promoter.name}:`, err);
-            setError(prevErr => prevErr ? `${prevErr}; Failed for ${promoter.name}` : `Failed for ${promoter.name}: ${err.message}`);
+            const generatedEmailContent = await generateEmailForPromoter(currentId, 'neutral');
+
+            if (generatedEmailContent === null) {
+                console.log(`[handleGenerateAll] Skipped generating for ID ${currentId} as promoter was not found.`);
+            } else {
+                // Update in Supabase
+                const { error: updateError } = await supabase
+                    .from('outreach_promoters')
+                    .update({ generated_email: generatedEmailContent })
+                    .eq('id', currentId);
+                if (updateError) throw updateError;
+                
+                // Update local state immediately
+                setPromoters(prevPromoters => 
+                    prevPromoters.map(p => 
+                    p.id === currentId ? { ...p, generatedEmail: generatedEmailContent } : p
+                    )
+                );
+                console.log(`[handleGenerateAll] Successfully generated for ${promoterToProcess.name}`);
+            }
+        } catch (err) { // Catches errors from generateEmailForPromoter (like API errors)
+            const promoterNameForError = promoterToProcess ? promoterToProcess.name : `ID ${currentId}`;
+            console.error(`Error in generateEmailForPromoter for ${promoterNameForError}:`, err);
+            // err.message from generateEmailForPromoter now includes promoter name for API errors
+            setError(prevErr => prevErr ? `${prevErr}; Failed for ${promoterNameForError}: ${err.message}` : `Failed for ${promoterNameForError}: ${err.message}`);
             errorsEncountered = true;
         } finally {
-            // Remove loading state for the current card regardless of success/failure
             setGeneratingIds(prev => {
                 const next = new Set(prev);
                 next.delete(currentId);
@@ -768,6 +982,10 @@ function App() {
   const handleOpenCallsModal = () => setIsCallsModalOpen(true);
   const handleCloseCallsModal = () => setIsCallsModalOpen(false);
 
+  // NEW: Handlers for Ranks Modal
+  const handleOpenRanksModal = () => setIsRanksModalOpen(true);
+  const handleCloseRanksModal = () => setIsRanksModalOpen(false);
+
   // --- Call Feature Handlers ---
   const handleScheduleCall = useCallback(async (promoterId, promoterName) => {
     try {
@@ -876,6 +1094,12 @@ function App() {
           onDeleteCall={handleDeleteCall} 
           onCompleteCall={handleCompleteCall}
       />
+      {/* NEW: Render Ranks Modal */}
+      <RanksModal
+          isOpen={isRanksModalOpen}
+          onClose={handleCloseRanksModal}
+          promoters={promoters} 
+      />
 
       <header className="app-header">
         {/* Dynamically set the header text based on currentPage */}
@@ -902,6 +1126,10 @@ function App() {
             {/* Add Calls button */}
             <button className="button-secondary calls-button" onClick={handleOpenCallsModal} title="View Calls"> 
               <FiPhone className="button-icon"/> <span>Calls ({scheduledCalls.length})</span>
+            </button>
+            {/* NEW: Ranks Button */}
+            <button className="button-secondary ranks-button" onClick={handleOpenRanksModal} title="View Rankings">
+              <FiAward className="button-icon" /> <span>Ranks</span>
             </button>
             <button 
               className={`button-tertiary ${generationStatus === 'running' ? 'generating' : ''}`}

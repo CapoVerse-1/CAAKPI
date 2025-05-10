@@ -393,4 +393,167 @@
 
 .icon-button.copied .icon {
   /* Styles for copied email body icon (if any specific needed) */
+}
+
+/* NEW: Styles for clickable subject */
+.clickable-subject {
+  cursor: pointer;
+  position: relative; /* For potential absolute positioning of the icon if needed */
+  /* Ensure the paragraph maintains its height even when only icon is shown */
+  min-height: 1.2em; /* Adjust based on your font size and line height */ 
+  display: flex; /* To help center the icon */
+  align-items: center; /* To help center the icon */
+}
+
+.clickable-subject .icon-subject-copied {
+  color: #198754; /* Green, same as icon-copied-feedback */
+  font-size: 1.2em; /* Adjust size as needed */
+  /* If the <p> has padding, the icon might not be perfectly centered. */
+  /* The flex align-items on parent should help. */
+  /* If more precise centering is needed when text is gone: */
+  margin: 0 auto; /* Centers the icon if it's the only child */ 
+}
+
+/* Mood Selector Styles */
+.mood-selector-container {
+  position: relative; /* For dropdown positioning */
+  margin-bottom: 12px; /* Space before subject line */
+  display: flex; /* Aligns button nicely */
+  justify-content: flex-start; /* Aligns button to the left */
+}
+
+.mood-selector-button {
+  background-color: #f8f9fa; /* Light default background */
+  color: #495057; /* Default text color */
+  border: 1px solid #dee2e6; /* Default border */
+  padding: 4px 10px; /* Smaller padding */
+  border-radius: 6px; /* More boxy, slightly rounded */
+  cursor: pointer;
+  font-size: 0.8em; /* Smaller font */
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Adjusted gap for icon, text, and chevron */
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  min-width: auto; /* Adjust to content instead of fixed width */
+  width: max-content; /* Only take as much width as needed */
+  justify-content: space-between; /* To help with chevron positioning if text is short */
+}
+
+.mood-selector-button:hover:not(:disabled) {
+  border-color: #adb5bd; /* Darker border on hover for default state */
+}
+
+.mood-selector-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.mood-selector-button .mood-icon { /* Class for the main mood icon inside the button */
+  font-size: 1.1em; /* Slightly larger than button text */
+  flex-shrink: 0;
+}
+
+.mood-dropdown-icon { /* For FiChevronDown or similar */
+  font-size: 0.9em; /* Small but visible */
+  /* margin-left: auto; --- Let justify-content handle it or fixed gap */
+  color: #6c757d; /* Neutral color for chevron */
+  flex-shrink: 0;
+}
+
+/* Selected Mood Button States */
+.mood-selector-button.mood-selected-neutral {
+  background-color: rgba(107, 114, 128, 0.2); 
+  border-color: rgba(107, 114, 128, 0.3); 
+  color: #6b7280;
+}
+.mood-selector-button.mood-selected-beeindruckt {
+  background-color: rgba(6, 95, 70, 0.2); 
+  border-color: rgba(6, 95, 70, 0.3); 
+  color: #065f46;
+}
+.mood-selector-button.mood-selected-zufrieden {
+  background-color: rgba(253, 126, 20, 0.2); 
+  border-color: rgba(253, 126, 20, 0.3); 
+  color: #fd7e14; /* Using the stat-ok orange from line 363 */
+}
+.mood-selector-button.mood-selected-verbesserung {
+  background-color: rgba(30, 64, 175, 0.2);
+  border-color: rgba(30, 64, 175, 0.3);
+  color: #1e40af;
+}
+.mood-selector-button.mood-selected-motivierend { /* Changed to pink */
+  background-color: rgba(219, 39, 119, 0.2);
+  border-color: rgba(219, 39, 119, 0.3);
+  color: #db2777;
+}
+.mood-selector-button.mood-selected-verschlechterung {
+  background-color: rgba(153, 27, 27, 0.2);
+  border-color: rgba(153, 27, 27, 0.3);
+  color: #991b1b;
+}
+
+.mood-dropdown {
+  position: absolute;
+  top: calc(100% + 5px); /* Position below the button */
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100; /* Ensure it's above other elements */
+  width: auto; /* Adjust width to content */
+  min-width: 200px; /* Minimum width for better layout */
+  padding: 5px 0;
+}
+
+.mood-option {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: #333;
+  gap: 10px; /* Space between icon and text */
+  /* Remove generic background, will be set by specific classes */
+  transition: background-color 0.15s ease-in-out;
+}
+
+/* Specific background colors for each mood option */
+.mood-option.mood-option-neutral { 
+  color: #6b7280; 
+  background-color: transparent;
+}
+.mood-option.mood-option-beeindruckt { 
+  color: #065f46; 
+  background-color: transparent;
+}
+.mood-option.mood-option-zufrieden { 
+  color: #fd7e14; /* Using the stat-ok orange from line 363 */
+  background-color: transparent;
+}
+.mood-option.mood-option-verbesserung { 
+  color: #1e40af; 
+  background-color: transparent;
+}
+.mood-option.mood-option-motivierend { 
+  color: #db2777; /* Changed to pink */
+  background-color: transparent;
+} 
+.mood-option.mood-option-verschlechterung { 
+  color: #991b1b; 
+  background-color: transparent;
+}
+
+/* Hover states for mood options */
+.mood-option.mood-option-neutral:hover { background-color: #f8f9fa; }
+.mood-option.mood-option-beeindruckt:hover { background-color: #f0fdf4; }
+.mood-option.mood-option-zufrieden:hover { background-color: #fffbeb; }
+.mood-option.mood-option-verbesserung:hover { background-color: #eff6ff; }
+.mood-option.mood-option-motivierend:hover { background-color: #f5f3ff; } 
+.mood-option.mood-option-verschlechterung:hover { background-color: #fef2f2; }
+
+.mood-option .icon {
+  /* margin-right: 8px; --- Rely on gap property of .mood-option */
+  font-size: 1.1em; /* Slightly larger icon */
+  flex-shrink: 0;
 } 

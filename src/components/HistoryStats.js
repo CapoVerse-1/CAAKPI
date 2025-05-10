@@ -181,7 +181,7 @@ function HistoryStats({ historyEntries, selectedPromoter }) {
 
     // Define ideal start values
     const idealValues = {
-        mc_et: 4.5,
+        mc_et: 4.0,
         tma_anteil: 75,
         vl_share: 10
     };

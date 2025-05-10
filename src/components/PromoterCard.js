@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiEdit, FiTrash2, FiRefreshCw, FiCheck, FiCopy, FiSend, FiMail, FiTrendingUp, FiPercent, FiPieChart, FiZap, FiPhoneCall } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiRefreshCw, FiCheck, FiCopy, FiSend, FiMail, FiTrendingUp, FiPercent, FiPieChart, FiZap, FiPhoneCall, FiChevronDown, FiChevronUp, FiThumbsUp, FiSmile, FiMessageSquare, FiTrendingDown, FiMinus, FiSliders } from 'react-icons/fi';
 import { CgSpinner } from 'react-icons/cg';
 import './PromoterCard.css';
 
@@ -10,9 +10,9 @@ export const getStatClass = (statName, value) => {
 
   switch (statName) {
     case 'MC/ET':
-      if (value >= 4.5 && value <= 5.0) return 'stat-good';
-      if ((value >= 3.5 && value < 4.5) || (value > 5.0 && value <= 6.0)) return 'stat-ok';
-      return 'stat-bad';
+      if (value > 4.0) return 'stat-good'; // Green if > 4.0
+      if (value >= 3.5 && value <= 4.0) return 'stat-ok'; // Orange if 3.5 <= value <= 4.0
+      return 'stat-bad'; // Red if < 3.5
     case 'TMA Anteil':
       if (value >= 75) return 'stat-good';
       if (value >= 60 && value < 75) return 'stat-ok';
@@ -42,10 +42,15 @@ function PromoterCard({
   const [isCopied, setIsCopied] = useState(false);
   const [isEmailCopied, setIsEmailCopied] = useState(false);
   const [isCallScheduledFeedback, setIsCallScheduledFeedback] = useState(false);
+  const [isSubjectCopied, setIsSubjectCopied] = useState(false);
+  const [selectedMood, setSelectedMood] = useState('neutral');
+  const [isMoodDropdownOpen, setIsMoodDropdownOpen] = useState(false);
+  const moodDropdownRef = useRef(null);
   const emailTextAreaRef = useRef(null);
   const copyTimeoutRef = useRef(null);
   const emailCopyTimeoutRef = useRef(null);
   const callScheduleTimeoutRef = useRef(null);
+  const subjectCopyTimeoutRef = useRef(null);
 
   useEffect(() => {
     setEditedEmail(promoter.generatedEmail || '');
@@ -122,13 +127,11 @@ function PromoterCard({
       if (emailCopyTimeoutRef.current) {
         clearTimeout(emailCopyTimeoutRef.current);
       }
-    };
-  }, []);
-
-  useEffect(() => {
-    return () => {
       if (callScheduleTimeoutRef.current) {
         clearTimeout(callScheduleTimeoutRef.current);
+      }
+      if (subjectCopyTimeoutRef.current) {
+        clearTimeout(subjectCopyTimeoutRef.current);
       }
     };
   }, []);
@@ -156,6 +159,62 @@ function PromoterCard({
 
   const isExpanded = promoter.generatedEmail || isEditingEmail;
   console.log(`[PromoterCard ${promoter.id}] Rendering. Should Expand: ${isExpanded} (Email: ${!!promoter.generatedEmail}, Editing: ${isEditingEmail})`);
+
+  // Get current month in German
+  const currentMonthName = new Date().toLocaleString('de-DE', { month: 'long' });
+  const displaySubject = `${currentMonthName} KPIs`;
+
+  const handleCopySubject = () => {
+    if (subjectCopyTimeoutRef.current) {
+      clearTimeout(subjectCopyTimeoutRef.current);
+    }
+
+    navigator.clipboard.writeText(displaySubject)
+      .then(() => {
+        setIsSubjectCopied(true);
+        subjectCopyTimeoutRef.current = setTimeout(() => {
+          setIsSubjectCopied(false);
+          subjectCopyTimeoutRef.current = null;
+        }, 1500);
+      })
+      .catch(err => {
+        console.error('Failed to copy subject: ', err);
+      });
+  };
+
+  const moodOptions = [
+    { value: 'neutral', label: 'Neutral', icon: <FiSliders className="icon" /> },
+    { value: 'beeindruckt', label: 'Beeindruckt', icon: <FiThumbsUp className="icon" /> },
+    { value: 'zufrieden', label: 'Trotzdem zufrieden', icon: <FiSmile className="icon" /> },
+    { value: 'verbesserung', label: 'Verbesserung', icon: <FiTrendingUp className="icon" /> },
+    { value: 'motivierend', label: 'Motivierend (unzufrieden)', icon: <FiMessageSquare className="icon" /> },
+    { value: 'verschlechterung', label: 'Verschlechterung', icon: <FiTrendingDown className="icon" /> },
+  ];
+
+  const handleMoodSelect = (moodValue) => {
+    setSelectedMood(moodValue);
+    setIsMoodDropdownOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (moodDropdownRef.current && !moodDropdownRef.current.contains(event.target)) {
+        setIsMoodDropdownOpen(false);
+      }
+    };
+    if (isMoodDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      if (emailCopyTimeoutRef.current) clearTimeout(emailCopyTimeoutRef.current);
+      if (callScheduleTimeoutRef.current) clearTimeout(callScheduleTimeoutRef.current);
+      if (subjectCopyTimeoutRef.current) clearTimeout(subjectCopyTimeoutRef.current);
+    };
+  }, [isMoodDropdownOpen]);
 
   return (
     <div className={`card promoter-card ${isGenerating ? 'generating' : ''} ${isReadOnly ? 'read-only' : ''}`}>
@@ -199,7 +258,7 @@ function PromoterCard({
 
       <div className="generated-email-section">
         <div className="email-header">
-          <h4>Generated Email</h4>
+          <h4>Mood</h4>
           {!isReadOnly && (
             <div className="email-actions">
               <button 
@@ -210,7 +269,7 @@ function PromoterCard({
               >
                 {isCallScheduledFeedback ? <FiCheck className="icon icon-copied"/> : <FiPhoneCall className="icon" />}
               </button>
-              <button onClick={() => onRegenerate(promoter.id)} className="icon-button" title="Generate/Regenerate Email" disabled={isGenerating || isCopied}>
+              <button onClick={() => onRegenerate(promoter.id, selectedMood)} className="icon-button" title="Generate/Regenerate Email" disabled={isGenerating || isCopied}>
                 <FiRefreshCw className="icon" />
               </button>
               {promoter.generatedEmail && (
@@ -232,10 +291,43 @@ function PromoterCard({
             </div>
           )}
         </div>
-        <div className="email-tags">
-          <span className="tag model-tag">{promoter.model}</span>
+
+        <div className="mood-selector-container" ref={moodDropdownRef}>
+          <button 
+            className={`mood-selector-button ${selectedMood ? `mood-selected-${selectedMood}` : ''}`}
+            onClick={() => setIsMoodDropdownOpen(!isMoodDropdownOpen)}
+            disabled={isReadOnly}
+          >
+            {selectedMood && moodOptions.find(m => m.value === selectedMood)?.icon}
+            <span>{selectedMood ? moodOptions.find(m => m.value === selectedMood)?.label : 'Select Mood'}</span>
+            {isMoodDropdownOpen ? 
+              <FiChevronUp className="mood-dropdown-icon" /> : 
+              <FiChevronDown className="mood-dropdown-icon" />
+            }
+          </button>
+          {isMoodDropdownOpen && (
+            <div className="mood-dropdown">
+              {moodOptions.map(option => (
+                <div 
+                  key={option.value} 
+                  className={`mood-option mood-option-${option.value}`}
+                  onClick={() => handleMoodSelect(option.value)}
+                >
+                  {option.icon} 
+                  <span>{option.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        <p className="subject-line">Subject: {promoter.subject}</p>
+
+        <p className="subject-line clickable-subject" onClick={handleCopySubject} title="Copy Subject">
+          {isSubjectCopied ? (
+            <FiCheck className="icon icon-subject-copied" />
+          ) : (
+            <>Subject: {displaySubject}</>
+          )}
+        </p>
         
         <div className="email-body">
           {isGenerating ? (
@@ -261,7 +353,7 @@ function PromoterCard({
                   {!isReadOnly && (
                     <button 
                       className="button-tertiary generate-button" 
-                      onClick={(e) => { e.stopPropagation(); onRegenerate(promoter.id); }}
+                      onClick={(e) => { e.stopPropagation(); onRegenerate(promoter.id, selectedMood); }}
                       disabled={isGenerating}
                     >
                       <FiZap /> Generate Email
@@ -276,7 +368,7 @@ function PromoterCard({
               {!isReadOnly && (
                 <button 
                   className="button-tertiary generate-button" 
-                  onClick={(e) => { e.stopPropagation(); onRegenerate(promoter.id); }}
+                  onClick={(e) => { e.stopPropagation(); onRegenerate(promoter.id, selectedMood); }}
                   disabled={isGenerating}
                 >
                   <FiZap /> Generate Email
