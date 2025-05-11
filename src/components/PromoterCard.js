@@ -187,8 +187,8 @@ function PromoterCard({
 
   const moodOptions = [
     { value: 'neutral', label: 'Neutral', icon: <FiSliders className="icon" /> },
-    { value: 'beeindruckt', label: 'Beeindruckt', icon: <FiThumbsUp className="icon" /> },
-    { value: 'zufrieden', label: 'Trotzdem zufrieden', icon: <FiSmile className="icon" /> },
+    { value: 'beeindruckt', label: 'Beeindruckt', icon: <FiSmile className="icon" /> },
+    { value: 'zufrieden', label: 'Trotzdem zufrieden', icon: <FiThumbsUp className="icon" /> },
     { value: 'verbesserung', label: 'Verbesserung', icon: <FiTrendingUp className="icon" /> },
     { value: 'motivierend', label: 'Motivierend (unzufrieden)', icon: <FiMessageSquare className="icon" /> },
     { value: 'verschlechterung', label: 'Verschlechterung', icon: <FiTrendingDown className="icon" /> },
