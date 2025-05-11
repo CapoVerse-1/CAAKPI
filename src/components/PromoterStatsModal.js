@@ -150,7 +150,6 @@ function PromoterStatsModal({ isOpen, onClose, promoter, historyEntries }) {
   const hiddenEntries = allPromoterHistoryEntries.slice(5);
   const entriesToDisplay = isHistoryExpanded ? allPromoterHistoryEntries : visibleEntries;
   const showBlurred = !isHistoryExpanded && blurredEntries.length > 0;
-  const showHiddenInitially = !isHistoryExpanded && hiddenEntries.length > 0; 
 
   const renderHistoryEntry = (entry, isBlurred = false) => {
     const entryMcEtClass = getStatClass('MC/ET', entry.mc_et);

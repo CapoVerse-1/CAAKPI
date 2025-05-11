@@ -423,7 +423,7 @@ Liebe Grüße, dein Nespresso Team
       const errorMessage = apiError.response?.data?.error?.message || apiError.message || "Unknown API error";
       throw new Error(`API Error for ${promoter.name}: ${errorMessage}`); // Re-throw to be caught by caller
     }
-  }, [promoters, openaiClient]); // Dependency: openaiClient
+  }, [promoters, openaiClient, historyEntries]); // Dependency: openaiClient, historyEntries
 
   // --- File Processing Logic --- 
   const processFile = async (file) => {
