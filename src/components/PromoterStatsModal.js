@@ -147,7 +147,6 @@ function PromoterStatsModal({ isOpen, onClose, promoter, historyEntries }) {
   // Determine which entries to show based on expansion state
   const visibleEntries = allPromoterHistoryEntries.slice(0, 2);
   const blurredEntries = allPromoterHistoryEntries.slice(2, 5);
-  const hiddenEntries = allPromoterHistoryEntries.slice(5);
   const entriesToDisplay = isHistoryExpanded ? allPromoterHistoryEntries : visibleEntries;
   const showBlurred = !isHistoryExpanded && blurredEntries.length > 0;
 
