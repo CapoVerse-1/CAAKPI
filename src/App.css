@@ -148,32 +148,35 @@ main {
 }
 
 .nav-button {
-    background-color: transparent; /* Transparent by default */
-    border: none; /* Remove border */
-    color: #5a6169; /* Default text color - slightly muted */
-    padding: 8px 16px; /* Adjusted padding */
-    font-size: 0.9rem;
-    border-radius: 6px; /* Rounded corners for individual buttons */
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    background-color: transparent;
+    color: #495057;
+    padding: 8px 16px;
+    border: 1px solid #d9dde0; /* Added subtle border */
+    border-radius: 6px;
+    text-decoration: none;
     font-weight: 500; /* Consistent font-weight */
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; /* Added border-color transition */
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .nav-button:hover {
-    /* background-color: #e9ecef; */ /* Light hover for non-active */
-    color: #343a40; /* Darker text on hover */
-    background-color: #f8f9fa; /* Slightly lighter than e9ecef for a more subtle hover */
-    filter: none;
+    background-color: #e9ecef;
+    color: #212529;
+    border-color: #ced4da; /* Slightly darker border on hover */
 }
 
 .nav-button.active {
-    background-color: #e9ecef; /* Light grey for active button background */
-    color: #212529; /* Darker, clear text for active state */
-    font-weight: 500; /* Consistent font-weight */
-    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0,0,0,0.07); */ /* Removed shadow */
-    box-shadow: none; /* Explicitly remove shadow */
+    background-color: #dee2e6; /* Light grey for active, distinct from hover */
+    color: #000;
+    font-weight: 500; /* Ensure consistent font-weight */
+    border-color: #c6cdd2; /* Darker border for active state */
+    /* box-shadow: none; */ /* Removed box-shadow as per previous request */
 }
 
-.nav-button svg {
+.nav-button .nav-icon {
     margin-right: 5px;
     vertical-align: text-bottom;
 }
