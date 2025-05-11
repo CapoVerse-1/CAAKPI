@@ -120,6 +120,15 @@ function App() {
   const stopGenerationRef = useRef(false); 
   const fileInputRef = useRef(null); // Ref for the hidden file input
 
+  // --- Update Promoter Mood ---
+  const handleUpdatePromoterMood = useCallback((promoterId, newMood) => {
+    setPromoters(prevPromoters =>
+      prevPromoters.map(p =>
+        p.id === promoterId ? { ...p, selectedMood: newMood } : p
+      )
+    );
+  }, []);
+
   // --- Effects --- 
   // Updated Effect to fetch ALL initial data from Supabase
   useEffect(() => {
@@ -134,7 +143,11 @@ function App() {
           .order('created_at', { ascending: true });
         if (outreachError) throw outreachError;
         // Map Supabase data and calculate initial ranks
-        const initialPromoters = outreachData.map(p => ({ ...p, isMarkedSent: p.is_marked_sent })) || [];
+        const initialPromoters = outreachData.map(p => ({ 
+          ...p, 
+          isMarkedSent: p.is_marked_sent,
+          selectedMood: p.selectedmood || 'neutral' // Map DB 'selectedmood' to app 'selectedMood'
+        })) || [];
         setPromoters(calculateGlobalPromoterRankings(initialPromoters));
 
         // Fetch history entries
@@ -148,7 +161,8 @@ function App() {
             ...h, 
             generatedEmail: h.generated_email, 
             historyId: h.id, // Use Supabase ID as historyId
-            savedAt: h.app_saved_at || h.created_at // Prefer app timestamp if saved, fallback to db creation
+            savedAt: h.app_saved_at || h.created_at, // Prefer app timestamp if saved, fallback to db creation
+            selectedMood: h.selectedmood || 'neutral' // Map DB 'selectedmood' to app 'selectedMood' for history
         })) || []);
 
         // Fetch inactive promoters
@@ -250,11 +264,11 @@ VL Share im Vergleich zur Vorperiode: ${vlShareChangeText}`;
 
 Aufbau der E‑Mail:
 
-1. Anrede: „Liebe" bzw. „Lieber" + ${pName}.
+1. Anrede: "Liebe" bzw. "Lieber" + ${pName}.
 
-2. Einleitung, z. B. „Ich darf dir heute deine ${currentMonthName} KPIs zukommen lassen."
+2. Einleitung, z. B. "Ich darf dir heute deine ${currentMonthName} KPIs zukommen lassen."
 
-3. Kurzer motivierender Satz („Trotz [gegebenen Umständen] machst du das Beste draus und dafür ein großes Dankeschön unsererseits. 😊").
+3. Kurzer motivierender Satz ("Trotz [gegebenen Umständen] machst du das Beste draus und dafür ein großes Dankeschön unsererseits. 😊").
 
 4. Rückblick auf die Zahlen mit folgenden Daten in genau dieser Form:
 
@@ -264,7 +278,7 @@ Aufbau der E‑Mail:
 
 5. Bewertung:
 
-   * Bei MC/ET und VL Share jeweils das Ranking nennen diese info bekommst du im code (z. B. „Du bist in diesem Monat auf Platz 1" bzw. „auf Platz 30").
+   * Bei MC/ET und VL Share jeweils das Ranking nennen diese info bekommst du im code (z. B. "Du bist in diesem Monat auf Platz 1" bzw. "auf Platz 30").
    * Beim TMA-Anteil nur einordnen: einer der Besten, im Mittelfeld oder im unteren Drittel.
    * Gehe auf die Plätze nur nochmal im Text ausführlicher ein (zusätzlich zur Auflistung oben), wenn die Person Top 3 ist ODER zu den niedrigsten 10 gehört. Erkläre dann, was die Zahlen bedeuten und ob Verbesserungspotenzial besteht oder ob es bereits super läuft. (Für die "niedrigsten 10" gehe von ca. 60 Promotoren gesamt aus, wie im Hintergrund erwähnt.)
 
@@ -274,7 +288,7 @@ Bitte integriere diese Informationen subtil in deine Bewertung der einzelnen KPI
 
 6. Abschließender motivierender Satz, der zum Weitermachen anregt.
 
-7. Grußformel IMMER!!!!!: „Liebe Grüße, dein Nespresso Team."
+7. Grußformel IMMER!!!!!: "Liebe Grüße, dein Nespresso Team."
 
 Hintergrund:
 
@@ -480,7 +494,8 @@ Liebe Grüße, dein Nespresso Team
               generated_email: '', 
               subject: 'CA KPIs',
               model: 'GPT-4o', 
-              is_marked_sent: false
+              is_marked_sent: false,
+              selectedmood: 'neutral' // Use all lowercase key for DB insertion
           };
       }).filter(promoter => promoter !== null);
 
@@ -817,7 +832,8 @@ Liebe Grüße, dein Nespresso Team
           generated_email: p.generatedEmail,
           subject: p.subject,
           model: p.model,
-          app_saved_at: new Date().toISOString() // Record app save time
+          app_saved_at: new Date().toISOString(), // Record app save time
+          selectedmood: p.selectedMood || 'neutral' // Save app's selectedMood (camelCase) to DB as selectedmood (lowercase)
           // Supabase handles 'id' and 'created_at'
       }));
   
@@ -844,7 +860,8 @@ Liebe Grüße, dein Nespresso Team
                   ...h, 
                   generatedEmail: h.generated_email, 
                   historyId: h.id, 
-                  savedAt: h.app_saved_at || h.created_at
+                  savedAt: h.app_saved_at || h.created_at,
+                  selectedMood: h.selectedmood || 'neutral' // Also map here when updating history state after save
               })), 
               ...prev
           ].sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt))); // Ensure sorted
@@ -1209,6 +1226,7 @@ Liebe Grüße, dein Nespresso Team
                     onToggleMarkSent={handleToggleMarkSent}
                     onScheduleCall={handleScheduleCall}
                     historyEntries={historyEntries}
+                    onUpdateMood={handleUpdatePromoterMood}
                   />
                 ))}
               </div>
@@ -1294,6 +1312,7 @@ Liebe Grüße, dein Nespresso Team
                         onRegenerate={() => {}} // No regenerate on history
                         onToggleMarkSent={() => {}} // No toggle on history
                         historyEntries={historyEntries}
+                        onUpdateMood={handleUpdatePromoterMood} // Pass the new mood handler
                       />
                     ))}
                   </React.Fragment>

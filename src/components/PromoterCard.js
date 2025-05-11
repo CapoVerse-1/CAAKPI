@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FiEdit, FiTrash2, FiRefreshCw, FiCheck, FiCopy, FiSend, FiMail, FiTrendingUp, FiPercent, FiPieChart, FiZap, FiPhoneCall, FiChevronDown, FiChevronUp, FiThumbsUp, FiSmile, FiMessageSquare, FiTrendingDown, FiSliders } from 'react-icons/fi';
+import { IoColorWandOutline } from 'react-icons/io5';
 import { CgSpinner } from 'react-icons/cg';
 import './PromoterCard.css';
 import PromoterStatsModal from './PromoterStatsModal';
@@ -37,7 +38,8 @@ function PromoterCard({
     isGenerating, 
     isReadOnly,
     isMarkedSent,
-    historyEntries
+    historyEntries,
+    onUpdateMood
 }) {
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [editedEmail, setEditedEmail] = useState(promoter.generatedEmail || '');
@@ -45,7 +47,7 @@ function PromoterCard({
   const [isEmailCopied, setIsEmailCopied] = useState(false);
   const [isCallScheduledFeedback, setIsCallScheduledFeedback] = useState(false);
   const [isSubjectCopied, setIsSubjectCopied] = useState(false);
-  const [selectedMood, setSelectedMood] = useState('neutral');
+  const [selectedMood, setSelectedMood] = useState(promoter.selectedMood || 'neutral');
   const [isMoodDropdownOpen, setIsMoodDropdownOpen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const moodDropdownRef = useRef(null);
@@ -57,7 +59,8 @@ function PromoterCard({
 
   useEffect(() => {
     setEditedEmail(promoter.generatedEmail || '');
-  }, [promoter.generatedEmail]);
+    setSelectedMood(promoter.selectedMood || 'neutral');
+  }, [promoter.generatedEmail, promoter.selectedMood]);
 
   useEffect(() => {
     if (isEditingEmail && emailTextAreaRef.current) {
@@ -196,6 +199,9 @@ function PromoterCard({
 
   const handleMoodSelect = (moodValue) => {
     setSelectedMood(moodValue);
+    if (onUpdateMood && !isReadOnly) {
+      onUpdateMood(promoter.id, moodValue);
+    }
     setIsMoodDropdownOpen(false);
   };
 
@@ -272,7 +278,7 @@ function PromoterCard({
 
         <div className="generated-email-section">
           <div className="email-header">
-            <h4>Mood</h4>
+            <h4><IoColorWandOutline className="header-icon" /> Magic Touch</h4>
             {!isReadOnly && (
               <div className="email-actions">
                 <button 
