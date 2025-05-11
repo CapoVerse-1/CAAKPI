@@ -29,6 +29,24 @@
   gap: 8px;
 }
 
+/* General Button Styling - Add borders here if applicable to all or by class */
+.button-primary {
+  /* Assuming background-color: #0d6efd; */
+  border: 1px solid #0a58ca !important; /* Darker blue */
+}
+
+.button-secondary {
+  /* Assuming background-color: #6c757d; */
+  /* This will also apply to .settings-button if it has .button-secondary */
+  border: 1px solid #5a6268 !important; /* Darker grey */
+}
+
+.button-tertiary {
+  /* Assuming background-color for Generate All is a green like #20c997 */
+  /* If it's different, this border color will need adjustment */
+  border: 1px solid #1a9b75 !important; /* Darker green */
+}
+
 /* Ensure dropzone matches updated button style */
 .button-like-dropzone {
   /* Inherits most styles from .button.button-primary */
@@ -63,10 +81,13 @@
 /* NEW: Settings Button Specifics */
 .settings-button {
     padding: 8px 10px; /* Make it slightly more square */
+    /* If it doesn't use .button-secondary, define its border specifically */
+    /* border: 1px solid #5a6268 !important; */ /* Example if it needs explicit border */
 }
 
 .settings-button .button-icon {
     margin: 0; /* Center icon if no text */
+    background-image: none !important;
 }
 
 /* Ensure spinner animation applies */
@@ -422,4 +443,11 @@ body {
 .calls-button:hover .button-icon,
 .calls-button:focus .button-icon {
   /* Icon color will be inherited from .calls-button:hover color */
+}
+
+/* Adding specific border for settings button if it's not covered by .button-secondary */
+/* This is a more specific selector if .settings-button is standalone or needs override */
+.app-header .header-actions .settings-button {
+    /* Assuming background: #6c757d (like a secondary button) */
+    border: 1px solid #545b62 !important; /* Slightly darker grey for border */
 } 
