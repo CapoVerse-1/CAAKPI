@@ -524,7 +524,7 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
         return next;
       });
     }
-  }, [promoters, openaiClient, generateEmailForPromoter, supabase]);
+  }, [generateEmailForPromoter, openaiClient]);
 
   // Generate All Emails - Refactored for Pause/Resume
   const handleGenerateAll = async () => {
@@ -639,7 +639,7 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
         // Revert UI if DB delete fails
         setPromoters(originalPromoters);
     }
-  }, [promoters, supabase]);
+  }, [promoters]);
 
   const handleUpdatePromoter = useCallback(async (id, updatedData) => {
     // Map internal state names to DB column names if needed
@@ -666,7 +666,7 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
         setError(`Failed to save changes: ${updateError.message}`);
         // Optionally revert local state here
     }
-  }, [supabase]);
+  }, []);
 
   // NEW: Handler to delete a specific history entry
   const handleDeleteHistoryEntry = useCallback(async (historyId) => {
@@ -685,7 +685,7 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
          setError(`Failed to delete history: ${deleteError.message}`);
          setHistoryEntries(originalHistory); // Revert
     }
-  }, [historyEntries, supabase]);
+  }, [historyEntries]);
 
   // --- Drag and Drop Handlers --- 
   const handleDragOver = (e) => {
@@ -754,7 +754,7 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
         console.error("Failed to toggle mark sent status:", updateError);
         setError(`Failed to update status: ${updateError.message}`);
     }
-  }, [promoters, supabase]);
+  }, [promoters]);
 
   // NEW: Save Sent Emails Handler
   const handleSaveSentEmails = async () => {
@@ -1006,7 +1006,7 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
       console.error("Failed to schedule call:", dbError);
       setError(`Failed to schedule call: ${dbError.message}`);
     }
-  }, [supabase]);
+  }, []);
 
   const handleDeleteCall = useCallback(async (callId) => {
     // Optimistic UI
@@ -1025,7 +1025,7 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
       setError(`Failed to delete call: ${dbError.message}`);
       setScheduledCalls(originalScheduled); // Revert
     }
-  }, [scheduledCalls, supabase]);
+  }, [scheduledCalls]);
 
   const handleCompleteCall = useCallback(async (callId, promoterName, promoterId) => {
     // Optimistic UI
@@ -1067,7 +1067,7 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
       setScheduledCalls(originalScheduled); // Revert scheduled calls
       // Potentially need to revert completed calls if added optimistically
     }
-  }, [scheduledCalls, supabase]);
+  }, [scheduledCalls]);
 
   return (
     <div className="App">
