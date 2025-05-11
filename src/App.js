@@ -61,6 +61,31 @@ const calculateGlobalPromoterRankings = (promotersList) => {
   return rankedList;
 };
 
+// --- Helper functions for historical context in email ---
+const getPerformanceChangeText = (current, previous, metricName, isPercentage = false) => {
+  if (previous === null || previous === undefined || current === null || current === undefined) {
+    return " (keine Daten für Vergleich)";
+  }
+  const change = current - previous;
+  const percentageChange = previous !== 0 ? (change / previous) * 100 : (current > 0 ? 100 : 0);
+
+  let trendText = "";
+  const threshold = isPercentage ? 5 : 0.2; // 5% for TMA/VL, 0.2 for MC/ET
+
+  if (percentageChange > threshold) {
+    trendText = Math.abs(percentageChange) > (threshold * 2) ? " (deutliche Verbesserung)" : " (leichte Verbesserung)";
+  } else if (percentageChange < -threshold) {
+    trendText = Math.abs(percentageChange) > (threshold * 2) ? " (deutlicher Rückgang)" : " (leichter Rückgang)";
+  } else {
+    trendText = " (relativ stabil)";
+  }
+
+  if (isPercentage) {
+    return `${percentageChange >= 0 ? '+' : ''}${percentageChange.toFixed(0)}%${trendText}`;
+  }
+  return `${change >= 0 ? '+' : ''}${change.toFixed(1)}${trendText}`;
+};
+
 function App() {
   // Main state
   const [promoters, setPromoters] = useState([]); // Will fetch from outreach_promoters
@@ -187,6 +212,25 @@ function App() {
       return null; // Indicate that this promoter should be skipped
     }
 
+    // Find historical entries for this promoter
+    const promoterHistory = historyEntries
+      .filter(entry => entry.name === promoter.name)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Ensure sorted newest first
+
+    let historicalContextString = "Keine Verlaufsdaten für direkten Vergleich verfügbar.";
+    if (promoterHistory.length > 0) {
+      const previousEntry = promoterHistory[0]; // The most recent historical entry
+
+      const mcEtChangeText = getPerformanceChangeText(promoter.mc_et, previousEntry.mc_et, "MC/ET");
+      const tmaChangeText = getPerformanceChangeText(promoter.tma_anteil, previousEntry.tma_anteil, "TMA", true);
+      const vlShareChangeText = getPerformanceChangeText(promoter.vl_share, previousEntry.vl_share, "VL Share", true);
+
+      historicalContextString = `
+MC/ET im Vergleich zur Vorperiode: ${mcEtChangeText}
+TMA-Anteil im Vergleich zur Vorperiode: ${tmaChangeText}
+VL Share im Vergleich zur Vorperiode: ${vlShareChangeText}`;
+    }
+
     const currentMonthName = new Date().toLocaleString('de-DE', { month: 'long' });
     const pName = promoter.name;
     const mcEtVal = promoter.mc_et !== null && promoter.mc_et !== undefined ? promoter.mc_et.toFixed(1) : 'N/A';
@@ -223,6 +267,10 @@ Aufbau der E‑Mail:
    * Bei MC/ET und VL Share jeweils das Ranking nennen diese info bekommst du im code (z. B. „Du bist in diesem Monat auf Platz 1" bzw. „auf Platz 30").
    * Beim TMA-Anteil nur einordnen: einer der Besten, im Mittelfeld oder im unteren Drittel.
    * Gehe auf die Plätze nur nochmal im Text ausführlicher ein (zusätzlich zur Auflistung oben), wenn die Person Top 3 ist ODER zu den niedrigsten 10 gehört. Erkläre dann, was die Zahlen bedeuten und ob Verbesserungspotenzial besteht oder ob es bereits super läuft. (Für die "niedrigsten 10" gehe von ca. 60 Promotoren gesamt aus, wie im Hintergrund erwähnt.)
+
+ZUSÄTZLICHER KONTEXT ZUR AKTUELLEN LEISTUNG (BERÜCKSICHTIGE DIESEN BEI DER BEWERTUNG DER KPIS):
+${historicalContextString}
+Bitte integriere diese Informationen subtil in deine Bewertung der einzelnen KPIs. Erwähne signifikante Verbesserungen ("deutliche Verbesserung") oder Verschlechterungen ("deutlicher Rückgang"). Wenn die Änderungen gering sind ("leichter Rückgang", "leichte Verbesserung") oder stabil sind, erwähne eher Stabilität oder konzentriere dich nur auf die aktuellen Werte und Ränge. Übertreibe die Erwähnung dieser Veränderungen nicht, sondern nutze sie, um deine Aussagen treffender zu machen und ggf. Ratschläge oder Lob spezifischer zu formulieren.
 
 6. Abschließender motivierender Satz, der zum Weitermachen anregt.
 
@@ -342,20 +390,15 @@ Liebe Grüße, dein Nespresso Team
     if (selectedMood !== 'neutral') {
       // Mood-specific prompts
       const moodPrompts = {
-        beeindruckt: `Mood: Beeindruckt
-Bitte versuche, die E-Mail etwas mehr wertschätzend zu formulieren. Die Leistung war dieses Mal wirklich stark, deshalb darf ruhig mitschwingen, dass wir beeindruckt sind – aber bitte nicht zu überschwänglich. Es soll glaubwürdig bleiben und nicht übertrieben klingen. Kleine Formulierungen wie "starke Leistung" oder "beeindruckend" reichen völlig. Es geht darum, positives Feedback aufrichtig rüberzubringen.`,
+        beeindruckt: `Mood: Stark Beeindruckt - Priorität Höchste Anerkennung!\nSchreibe diese E-Mail im Ton höchster Anerkennung und Wertschätzung. Die Leistung war außergewöhnlich. Formulierungen wie "herausragende Leistung", "wirklich beeindruckend", "exzellent" und "ein großes Lob für diese Performance" sollen den Kern der E-Mail bilden. Stelle sicher, dass diese positive Emotion in jedem Abschnitt mitschwingt, von der Einleitung bis zum Schluss. Vermeide jede neutrale oder zurückhaltende Formulierung.`,
         
-        zufrieden: `Mood: Trotzdem zufrieden
-Die Zahlen sind nicht überragend, aber im Vergleich zu den Umständen okay. Bitte lass zwischen den Zeilen durchblicken, dass wir insgesamt zufrieden sind – auch wenn noch Luft nach oben ist. Du kannst gerne Formulierungen verwenden wie "unter den Bedingungen absolut solide". Der Ton darf zugewandt und unterstützend sein, aber nicht beschönigend. Ziel ist ein ehrliches, aber positives Signal.`,
+        zufrieden: `Mood: Solide Zufriedenheit - Fokus auf das Positive!\nDer Ton dieser E-Mail soll klarstellen: Trotz eventueller kleinerer Schwächen sind wir mit der Gesamtleistung zufrieden und blicken positiv auf die Zusammenarbeit. Nutze Formulierungen wie "eine solide Leistung unter diesen Umständen", "wir sind damit zufrieden", "gut gemacht". Die E-Mail soll unterstützend und positiv klingen, ohne die Realität zu beschönigen. Betone das Engagement.`,
         
-        verbesserung: `Mood: Verbesserung
-Die Zahlen haben sich zum Vormonat verbessert, auch wenn sie noch nicht top sind. Bitte greif diesen Trend auf und erwähne subtil, dass es in die richtige Richtung geht. Vermeide übermäßiges Lob – es soll eher motivierend als belohnend klingen. Ein Satz wie "die Entwicklung ist klar positiv" oder "du bist auf einem guten Weg" wäre passend. Die Betonung liegt auf Fortschritt, nicht auf Perfektion.`,
+        verbesserung: `Mood: Deutliche Verbesserung - Trend hervorheben!\nDiese E-Mail muss den positiven Entwicklungstrend klar hervorheben. Auch wenn das Ziel noch nicht erreicht ist, ist der Fortschritt offensichtlich und anerkennenswert. Formuliere aktiv und positiv über die Verbesserung, z.B. "eine klare positive Entwicklung ist sichtbar", "Sie sind auf einem sehr guten Weg", "diese Steigerung ist ein tolles Signal". Motiviere, diesen Weg konsequent weiterzugehen.`,
         
-        motivierend: `Mood: Motivierend (unzufrieden)
-Die Zahlen sind schwach und es gibt Gesprächsbedarf. Bitte halte den Ton freundlich und motivierend, aber formuliere klar, dass die Performance aktuell nicht passt. Wir wollen niemanden demotivieren – aber auch nichts schönreden. Ein Satz wie "lass uns gemeinsam schauen, woran es liegt" ist besser als direkte Kritik. Ziel ist es, zum Nachdenken und Mitmachen anzuregen.`,
+        motivierend: `Mood: Konstruktiv-Motivierend - Handlungsbedarf bei schwachen Zahlen!\nDie Zahlen sind aktuell nicht zufriedenstellend und es besteht klarer Handlungsbedarf. Wichtig: Formuliere absolut lösungsorientiert und unterstützend, nicht anklagend. Ziel ist es, den Promoter zu motivieren, gemeinsam Ursachen zu finden und die Performance zu steigern. Nutze Formulierungen wie "lassen Sie uns gemeinsam analysieren, wie wir hier eine Wende schaffen können", "wir möchten Sie unterstützen, wieder auf Kurs zu kommen", "wir sind überzeugt, dass mit den richtigen Anpassungen eine Verbesserung möglich ist". Der Ton ist ernst, aber partnerschaftlich und zukunftsorientiert.`,
         
-        verschlechterung: `Mood: Verschlechterung
-Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sanft an, ohne zu direkt zu kritisieren. Es reicht, auf die Veränderung hinzuweisen und zur Reflexion einzuladen. Aussagen wie "die Zahlen sind etwas zurückgegangen" oder "du warst schon mal stärker" treffen den Ton. Wichtig ist, dass es unterstützend bleibt und nicht wertend wirkt.`
+        verschlechterung: `Mood: Besorgniserregende Verschlechterung - Ursachenforschung ist jetzt wichtig!\nDie Performance ist leider spürbar zurückgegangen. Dies muss klar, aber konstruktiv und nicht demotivierend angesprochen werden. Ziel ist es, den Promoter zur Reflexion anzuregen und gemeinsam nach Ursachen und Lösungen zu suchen. Formuliere Sätze wie: "Uns ist aufgefallen, dass die Zahlen in diesem Monat leider einen Rückgang zeigen. Lassen Sie uns gemeinsam überlegen, woran das liegen könnte und wie wir gegensteuern können.", "Es ist wichtig, diesen Trend zu verstehen, um wieder an frühere Erfolge anzuknüpfen." Biete Unterstützung an.`
       };
 
       // Add the selected mood prompt to the base prompt
@@ -493,25 +536,25 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
 
     try {
       const generatedEmailContent = await generateEmailForPromoter(id, selectedMood); 
-
+      
       if (generatedEmailContent === null) {
         // Promoter was not found by generateEmailForPromoter
         console.error(`Promoter with ID ${id} not found when attempting single generation.`);
         setError(`Failed for ID ${id}: Promoter not found. Could not generate email.`);
       } else {
-        // UPDATE in Supabase
-        const { error: updateError } = await supabase
-            .from('outreach_promoters')
-            .update({ generated_email: generatedEmailContent })
-            .eq('id', id);
-        if (updateError) throw updateError;
+      // UPDATE in Supabase
+      const { error: updateError } = await supabase
+          .from('outreach_promoters')
+          .update({ generated_email: generatedEmailContent })
+          .eq('id', id);
+      if (updateError) throw updateError;
 
-        // Update local state
-        setPromoters(prevPromoters => 
-          prevPromoters.map(p => 
-            p.id === id ? { ...p, generatedEmail: generatedEmailContent } : p
-          )
-        );
+      // Update local state
+      setPromoters(prevPromoters => 
+        prevPromoters.map(p => 
+          p.id === id ? { ...p, generatedEmail: generatedEmailContent } : p
+        )
+      );
       }
     } catch (err) { // Catches other errors like API errors from generateEmailForPromoter
       console.error(`Error during email generation process for ID ${id}:`, err);
@@ -579,23 +622,23 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
         
         try {
             const generatedEmailContent = await generateEmailForPromoter(currentId, 'neutral');
-
+            
             if (generatedEmailContent === null) {
                 console.log(`[handleGenerateAll] Skipped generating for ID ${currentId} as promoter was not found.`);
             } else {
-                // Update in Supabase
-                const { error: updateError } = await supabase
-                    .from('outreach_promoters')
-                    .update({ generated_email: generatedEmailContent })
-                    .eq('id', currentId);
-                if (updateError) throw updateError;
-                
-                // Update local state immediately
-                setPromoters(prevPromoters => 
-                    prevPromoters.map(p => 
-                    p.id === currentId ? { ...p, generatedEmail: generatedEmailContent } : p
-                    )
-                );
+            // Update in Supabase
+            const { error: updateError } = await supabase
+                .from('outreach_promoters')
+                .update({ generated_email: generatedEmailContent })
+                .eq('id', currentId);
+            if (updateError) throw updateError;
+            
+            // Update local state immediately
+            setPromoters(prevPromoters => 
+                prevPromoters.map(p => 
+                p.id === currentId ? { ...p, generatedEmail: generatedEmailContent } : p
+                )
+            );
                 console.log(`[handleGenerateAll] Successfully generated for ${promoterToProcess.name}`);
             }
         } catch (err) { // Catches errors from generateEmailForPromoter (like API errors)
@@ -889,10 +932,10 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
       ...provided,
       minWidth: 200,
       fontSize: '0.9rem',
-      borderColor: state.isFocused ? '#86b7fe' : '#ced4da',
-      boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(13, 110, 253, 0.25)' : 'none',
+      borderColor: state.isFocused ? '#ced4da' : '#ced4da',
+      boxShadow: state.isFocused ? 'none' : 'none',
       '&:hover': {
-        borderColor: state.isFocused ? '#86b7fe' : '#adb5bd',
+        borderColor: state.isFocused ? '#ced4da' : '#adb5bd',
       }
     }),
     option: (provided, state) => ({
@@ -1165,6 +1208,7 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
                     onRegenerate={handleGenerateEmail}
                     onToggleMarkSent={handleToggleMarkSent}
                     onScheduleCall={handleScheduleCall}
+                    historyEntries={historyEntries}
                   />
                 ))}
               </div>
@@ -1249,6 +1293,7 @@ Im Vergleich zum letzten Monat ist die Performance gesunken. Bitte sprich das sa
                         onUpdate={() => {}} // No updates on history
                         onRegenerate={() => {}} // No regenerate on history
                         onToggleMarkSent={() => {}} // No toggle on history
+                        historyEntries={historyEntries}
                       />
                     ))}
                   </React.Fragment>

@@ -1,0 +1,322 @@
+/* PromoterStatsModal.css */
+
+.promoter-stats-modal-content {
+  width: 90%;
+  max-width: 700px;
+  min-height: 450px;
+  max-height: 85vh; /* Slightly more height if needed */
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px; /* Consistent with other modals */
+}
+
+.promoter-stats-modal-content h2 {
+  text-align: center;
+  margin-top: 10px; /* Adjusted */
+  margin-bottom: 20px; /* Adjusted */
+  color: #343a40;
+  font-size: 1.3rem; /* Slightly smaller for a cleaner look */
+  font-weight: 600;
+}
+
+.current-stats-overview {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 15px 20px; /* Adjusted padding */
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  border: 1px solid #e9ecef; /* Lighter border */
+}
+
+.current-stats-overview .stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.85rem; /* Slightly smaller base font */
+}
+
+.current-stats-overview .stat-label {
+  color: #495057;
+  margin-bottom: 5px; /* Adjusted */
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.current-stats-overview .stat-label .icon {
+  margin-right: 5px;
+  font-size: 1em; /* Adjusted */
+}
+
+.current-stats-overview .stat-value {
+  font-size: 1.2rem; /* Adjusted */
+  font-weight: 600;
+}
+
+.stat-value-container {
+  display: flex;
+  flex-direction: column; /* Stack value and indicator */
+  align-items: center;
+  gap: 4px; /* Reduced gap */
+}
+
+.stat-change-indicator {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem; /* Smaller for subtlety */
+  padding: 2px 6px; /* Adjusted padding */
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.stat-change-indicator .icon {
+  margin-right: 4px;
+  font-size: 0.9em;
+}
+
+/* Cleaner percentage change colors */
+.stat-change-indicator.up {
+  color: #198754; /* Bootstrap success green */
+  background-color: #d1e7dd; /* Lighter pastel green */
+}
+
+.stat-change-indicator.down {
+  color: #dc3545; /* Bootstrap danger red */
+  background-color: #f8d7da; /* Lighter pastel red */
+}
+
+.stat-change-indicator.neutral {
+  color: #6c757d; /* Bootstrap secondary grey */
+  background-color: #e9ecef; /* Lighter pastel grey */
+}
+
+.historical-entries-section,
+.promoter-averages-section {
+  margin-bottom: 20px;
+  padding: 0 5px; /* Reduced horizontal padding */
+}
+
+.historical-entries-section h4,
+.promoter-averages-section h4 {
+  color: #343a40; /* Darker for better emphasis */
+  border-bottom: 1px solid #dee2e6; /* Consistent border */
+  padding-bottom: 10px; /* Increased padding */
+  margin-bottom: 15px;
+  font-size: 1.05rem; /* Slightly adjusted */
+  font-weight: 600;
+  text-align: center; /* Center section titles */
+  display: flex;
+  justify-content: center; /* Center title by default */
+  align-items: center;
+  position: relative; /* For absolute positioning of button if needed, or just for layout */
+}
+
+/* NEW: Styles for the history section header (title + button) */
+.history-section-header {
+  display: flex;
+  justify-content: center; /* Center title */
+  align-items: center;
+  position: relative; /* For positioning the button */
+  margin-bottom: 15px; /* Keep space below header */
+}
+
+.history-section-header h4 {
+  margin: 0; /* Remove default margin from h4 */
+  /* border-bottom: none; Remove individual border if header has one */ 
+  /* padding-bottom: 0; */
+  /* text-align will be handled by justify-content of parent */
+}
+
+.expand-history-button {
+  background: none;
+  border: none;
+  color: #495057;
+  cursor: pointer;
+  font-size: 1.2rem; /* Make icon a bit larger */
+  padding: 5px;
+  line-height: 1;
+  margin-left: 10px; /* Space it from the title */
+  /* Alternative: absolute positioning if needed for precise placement */
+  /* position: absolute; */
+  /* right: 5px; */
+  /* top: 50%; */
+  /* transform: translateY(-50%); */
+}
+
+.expand-history-button:hover {
+  color: #0d6efd;
+}
+
+/* Container for the list that will be animated */
+.promoter-history-list-container {
+  overflow: hidden; /* Crucial for max-height animation */
+  transition: max-height 0.5s ease-in-out; /* Smooth animation */
+  position: relative; /* For the fade overlay */
+}
+
+/* Initial collapsed state height - adjust based on item height */
+/* Assuming an item height of ~36px (padding 8px*2 + line height ~20px) */
+/* 2 visible items = ~72px */
+/* 3 blurred items (partially visible or just enough to hint) = ~54px (if opacity makes them take less visual space) */
+.promoter-history-list-container:not(.expanded) {
+  max-height: calc((36px * 2) + (20px * 3)); /* Approx height for 2 full, 3 partially visible/faded */
+   /* Adjust this value carefully based on actual rendered height of items */
+}
+
+.promoter-history-list-container.expanded {
+  max-height: 400px; /* Or a larger value, allows scrolling within this height */
+}
+
+.promoter-history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 180px; /* Adjusted */
+  overflow-y: auto;
+  overflow-y: auto; /* This will apply if expanded content > expanded max-height */
+}
+
+.history-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px; /* Adjusted padding */
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 0.8rem; /* Smaller font for list items */
+}
+
+.history-list-item:last-child {
+  border-bottom: none;
+}
+
+.history-item-date {
+  display: flex;
+  align-items: center;
+  color: #495057;
+  white-space: nowrap; /* Prevent date wrapping */
+}
+
+.history-item-date .icon {
+  margin-right: 6px;
+  color: #868e96;
+}
+
+.history-item-stats {
+  display: flex;
+  gap: 12px; /* Adjusted gap */
+  flex-wrap: nowrap; /* Prevent wrapping of stats if possible */
+}
+
+/* Key change: Cleaner stat display in history list */
+.history-item-stats .stat {
+  padding: 2px 0px; /* Minimal padding, rely on text color */
+  border-radius: 0; /* No radius needed if no background/border */
+  font-weight: 500;
+  background-color: transparent !important; /* Remove background */
+  border: none !important; /* Remove border */
+  white-space: nowrap;
+}
+
+/* Text colors for stats in history list */
+.history-item-stats .stat-good { color: #198754 !important; }
+.history-item-stats .stat-ok { color: #fd7e14 !important; } /* Brighter Orange for better visibility */
+.history-item-stats .stat-bad { color: #dc3545 !important; }
+
+.averages-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* Ensure 3 columns, allow shrinking */
+  gap: 6px; /* Further reduced gap */
+  margin-top: 10px;
+}
+
+.average-period {
+  padding: 6px 8px; /* Further reduced padding */
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Allow item to shrink below its content's intrinsic min-width */
+}
+
+.average-period h5 {
+  font-size: 0.75rem; /* Further reduced font size */
+  color: #343a40;
+  margin-top: 0;
+  margin-bottom: 6px; /* Adjusted */
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 4px; /* Adjusted */
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap; /* Prevent title from wrapping */
+  overflow: hidden; /* Hide overflow if title is too long */
+  text-overflow: ellipsis; /* Add ellipsis if title is too long */
+}
+
+.average-period p {
+  font-size: 0.7rem; /* Further reduced font size for stat lines */
+  color: #495057;
+  margin-bottom: 3px; /* Adjusted */
+  display: flex;
+  justify-content: space-between;
+  line-height: 1.2; /* Adjust line height for tighter packing */
+}
+
+.average-period p span { 
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Ensure stat-good, stat-ok, stat-bad colors apply to average values */
+.average-period .stat-good { color: #198754 !important; } /* Standard Green */
+.average-period .stat-ok { color: #fd7e14 !important; }   /* Standard Orange */
+.average-period .stat-bad { color: #dc3545 !important; }  /* Standard Red */
+
+/* Placeholder styling - can be removed later */
+.historical-entries-section p em,
+.promoter-averages-section p em {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Styling for stat colors (good, ok, bad) will be inherited from PromoterCard.css via getStatClass */
+
+/* Style for blurred entries */
+.history-list-item.blurred-entry {
+  opacity: 0.4;
+  /* filter: blur(1px); Optional: add a slight blur */
+  /* pointer-events: none; Optional: if you don't want them interactive when blurred */
+}
+
+/* Overlay to fade out entries if list is long in collapsed view */
+.history-fade-overlay {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px; /* Height of the fade */
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.9) 70%, rgb(255, 255, 255) 100%); /* Adjusted gradient to ensure icon is on solid part if needed */
+  pointer-events: none; /* Allows clicks to pass through the overlay itself */
+  display: flex; /* Use flex to center the icon */
+  align-items: flex-end; /* Align icon to the bottom of the fade */
+  justify-content: center;
+}
+
+/* Show overlay only when not expanded AND if there are more than 5 entries (this logic is in JS) */
+/* The .visible class was previously for display:block, now handled by flex display on .history-fade-overlay itself when rendered */
+
+.overlay-expand-icon {
+  font-size: 1.8rem; /* Larger icon */
+  color: #495057; /* Match other icon colors */
+  cursor: pointer;
+  pointer-events: auto; /* Make the icon clickable */
+  padding-bottom: 5px; /* Small padding to lift it slightly from the very bottom edge */
+  transition: color 0.2s ease-in-out;
+}
+
+.overlay-expand-icon:hover {
+  color: #0d6efd; /* Hover color */
+} 

@@ -338,4 +338,75 @@ main {
 .modal-close-button:hover {
     color: #343a40;
 }
-/* === End Base Modal Styles === */ 
+/* === End Base Modal Styles === */
+
+/* Global Styles */
+body {
+  /* ... existing body styles ... */
+}
+
+/* Add this new global rule */
+*:focus,
+*:focus-visible {
+  outline: none !important;
+  box-shadow: none !important; /* Also remove any custom box-shadow focus a user might have added elsewhere for consistency with the 'no stroke' request */
+}
+
+/* NEW: Styles for the Ranks button */
+.ranks-button {
+  background-color: #FFD700 !important; /* A standard, clean gold */
+  border: 1px solid #DAA520 !important; /* A slightly darker gold for the border */
+  color: #4A4A4A !important; /* Dark grey for text/icon for good contrast */
+  padding: 6px 12px !important; /* Keep padding consistent if specified elsewhere or adjust as needed */
+  font-size: 0.9rem !important; /* Keep font size consistent */
+  border-radius: 6px !important; /* Consistent border radius */
+  /* Remove any background-image for the gradient */
+  background-image: none !important;
+}
+
+.ranks-button:hover,
+.ranks-button:focus {
+  background-color: #F0C000 !important; /* Slightly darker gold on hover/focus */
+  border-color: #B8860B !important; /* Darker border on hover/focus */
+  color: #3A3A3A !important; /* Slightly darker text on hover for subtlety */
+  /* Ensure no gradient on hover/focus */
+  background-image: none !important;
+}
+
+.ranks-button .button-icon {
+  /* Icon color will be inherited from .ranks-button color, or can be set explicitly if needed */
+  /* margin-right: 5px; */ /* Keep if icon and text are present */
+}
+
+.ranks-button:hover .button-icon,
+.ranks-button:focus .button-icon {
+  /* Icon color will be inherited from .ranks-button:hover color */
+}
+
+/* NEW: Styles for the Calls button */
+.calls-button {
+  background-color: #C0C0C0 !important; /* Standard silver */
+  border: 1px solid #A9A9A9 !important; /* Darker silver for border */
+  color: #4A4A4A !important; /* Dark grey for text/icon */
+  padding: 6px 12px !important;
+  font-size: 0.9rem !important;
+  border-radius: 6px !important;
+  background-image: none !important; /* Ensure no gradient if other button styles try to apply one */
+}
+
+.calls-button:hover,
+.calls-button:focus {
+  background-color: #B0B0B0 !important; /* Slightly darker silver on hover/focus */
+  border-color: #989898 !important; /* Darker border on hover/focus */
+  color: #3A3A3A !important; /* Slightly darker text on hover */
+  background-image: none !important;
+}
+
+.calls-button .button-icon {
+  /* Icon color will be inherited */
+}
+
+.calls-button:hover .button-icon,
+.calls-button:focus .button-icon {
+  /* Icon color will be inherited from .calls-button:hover color */
+} 
