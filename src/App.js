@@ -261,10 +261,12 @@ VL Share im Vergleich zur Vorperiode: ${vlShareChangeText}`;
 • Die Empfänger sind unsere externen Promotoren im Einzelhandel. Du bleibst stets motivierend, übertreibst aber nicht.
 • Ziel der E‑Mails ist es, zu mehr Engagement anzuspornen und unsere Verkaufszahlen zu verbessern.
 • Die E‑Mails sollen direkt kopierfertig sein.
+• Keine Bindestriche in Sätzen verwende stattdessen Beistriche. 
+• Keine dicke Schrift, keine kursive Schrift, verwende keine '**'.
 
 Aufbau der E‑Mail:
 
-1. Anrede: "Liebe" bzw. "Lieber" + ${pName}.
+1. Anrede: "Liebe" bzw. "Lieber" + ${pName}. Verwende in der Anrede nur den Vornamen der Person.
 
 2. Einleitung, z. B. "Ich darf dir heute deine ${currentMonthName} KPIs zukommen lassen."
 
