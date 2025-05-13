@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { FiUpload, FiZap, FiSettings, FiPauseCircle, FiPlayCircle, FiLoader, FiDatabase, FiSend as FiOutreach, FiSave, FiPhone, FiAward } from 'react-icons/fi'; // Added history/nav icons
+import { FiUpload, FiZap, FiSettings, FiPauseCircle, FiPlayCircle, FiDatabase, FiSend as FiOutreach, FiSave, FiPhone, FiAward } from 'react-icons/fi'; // Removed FiLoader
 import * as XLSX from 'xlsx'; // Import xlsx library
 import OpenAI from "openai"; // Import OpenAI
 import './App.css';
