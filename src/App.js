@@ -300,7 +300,9 @@ Definitionen der Kennzahlen:
 
 • MC/ET: Durchschnittlich verkaufte Kaffeemaschinen pro Einsatztag im letzten Monat. Werte über 4 sind gut.
 • VL Share: Anteil der verkauften Maschinen aus der Vertuo-Reihe (in %). Werte über 10 % sind solide.
-• TMA-Anteil: Anteil der Maschinen, die vor Ort gekauft und direkt beim Promotor eingelöst wurden (in %). Die restlichen Gutscheine wurden später in einer anderen Filiale eingelöst.
+• TMA-Anteil: Anteil der Maschinen, die vor Ort gekauft und direkt beim Promotor eingelöst wurden (in %). Die restlichen Gutscheine wurden später in einer anderen Filiale eingelöst. Werte über 75% sind solide.
+
+Nummern erkärt: Verwende diese Infos nicht unbedingt für die email generation sondern nur für kontext damit du dir ein bild von den nummern verschaffen kannst. Promotoren bei denen der MC/ET sehr hoch ist bedeutet das dass sie sehr viel verkaufen und somit ist oft der VL Share niedriger. da der VL share die anzahl in % aller verkaufen Vertuo Maschine sind kann es sein dass bei vielen verkäufen dann wenig % zustande kommen. Jemand der sein sehr niedrigen MC/ET wert hat hat es wiederum einfacher VL share aufzubauen weil sie weniger Vertuo maschinen verkaufen muss um die % zu steigern als jemand mit einem hohen MC/ET. Ein sehr hoher MC/ET und 11% VL share sind viel besser als ein sehr niedriger MC/ET und hoher VL share. erwähne das nuuuur wenn es sein muss, diese info soll nur helfen dir ein besseres verständniss zu verschaffen was was bedeuetet
 
 Rankings:
 
@@ -780,7 +782,7 @@ Liebe Grüße, dein Nespresso Team
   const getGenerateAllButtonContent = () => {
       switch (generationStatus) {
           case 'running':
-              return <><FiLoader className="button-icon spinner"/> Generating...</>; // Changed text
+              return <><FiZap className="button-icon spinner"/> Generating...</>; // Changed FiLoader to FiZap
           case 'pausing': // Show pausing feedback
               return <><FiPauseCircle className="button-icon"/> Pausing...</>;
           case 'paused':
