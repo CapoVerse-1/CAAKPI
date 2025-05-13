@@ -19,41 +19,55 @@
 /* Segmented control style for tabs */
 .ranks-modal-tabs {
   display: flex;
-  background-color: #f0f0f0; /* Light grey background for the container */
+  /* background-color: #f0f0f0; */ /* Light grey background for the container */
+  background-color: transparent; /* Match .main-nav */
   border-radius: 8px;      /* Rounded corners for the container */
-  padding: 4px;            /* Padding inside the container */
+  /* padding: 4px; */            /* Padding inside the container */
+  padding: 0; /* Match .main-nav */
+  gap: 6px; /* Match .main-nav */
   margin-bottom: 20px;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); /* Subtle inner shadow */
+  /* box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); */ /* Subtle inner shadow */
 }
 
 .ranks-tab-button {
   flex-grow: 1;
   background-color: transparent; /* Default: inherit from container or be transparent */
-  border: none;
+  /* border: none; */
+  border: 1px solid #d9dde0; /* Match .nav-button */
   border-radius: 6px;      /* Rounded corners for individual tab buttons */
-  padding: 8px 12px;
+  /* padding: 8px 12px; */
+  padding: 8px 16px; /* Match .nav-button */
   cursor: pointer;
   font-size: 0.9rem; 
-  color: #343a40;       /* Darker text for inactive tabs */
+  /* color: #343a40; */       /* Darker text for inactive tabs */
+  color: #495057; /* Match .nav-button */
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  gap: 8px; /* Keep existing gap, .nav-button has 6px, but also an icon margin */
+  /* transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease; */
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease; /* Match .nav-button */
   font-weight: 500;
 }
 
 .ranks-tab-button:hover:not(.active) {
   background-color: #e9ecef; /* Slightly different background on hover for inactive tabs */
-  color: #007bff; /* Blue text on hover for inactive */
+  /* color: #007bff; */ /* Blue text on hover for inactive */
+  color: #212529; /* Match .nav-button:hover */
+  border-color: #ced4da; /* Match .nav-button:hover */
 }
 
 .ranks-tab-button.active {
-  background-color: #ffffff; /* White background for the active tab */
-  color: #007bff;          /* Blue text for the active tab */
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); /* Shadow to make it pop */
+  /* background-color: #ffffff; */ /* White background for the active tab */
+  background-color: #dee2e6; /* Match .nav-button.active */
+  /* color: #007bff; */          /* Blue text for the active tab */
+  color: #000; /* Match .nav-button.active */
+  /* font-weight: 600; */
+  font-weight: 500; /* Match .nav-button.active */
+  border-color: #c6cdd2; /* Match .nav-button.active */
+  /* box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); */ /* Shadow to make it pop */
+  box-shadow: none; /* Match .nav-button.active */
 }
 
 .ranks-tab-button svg {
@@ -87,10 +101,35 @@
 
 .rank-item .rank-number {
   font-weight: bold;
-  color: #0d6efd;
-  min-width: 30px; /* Ensure alignment */
-  text-align: right;
+  color: #212529; /* Default to black/dark grey */
+  min-width: 30px; /* Existing: ensure overall space for number + icon */
   margin-right: 15px;
+  display: flex; /* NEW: For aligning digit and icon */
+  align-items: center; /* NEW: Vertically center digit and icon */
+}
+
+.rank-item .rank-number .rank-digit {
+  display: inline-block; /* Or just let flex item behave as block-like */
+  min-width: 15px; /* Adjust based on max number of digits (e.g., 15px for up to '9.', 20px for '99.') */
+  text-align: right;
+}
+
+.rank-item .rank-number .rank-medal-icon {
+  margin-left: 5px;
+  font-size: 1em; /* Adjust if a different size is preferred */
+  line-height: 1; /* Helps with consistent vertical alignment if icon has weird line-height */
+}
+
+.rank-item .rank-number.rank-gold {
+  color: #FFD700; /* Gold */
+}
+
+.rank-item .rank-number.rank-silver {
+  color: #C0C0C0; /* Silver */
+}
+
+.rank-item .rank-number.rank-bronze {
+  color: #CD7F32; /* Bronze */
 }
 
 .rank-item .promoter-name {

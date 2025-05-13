@@ -18,10 +18,13 @@
 /* Modern Segmented Control Tabs */
 .modal-tabs {
     display: flex;
-    justify-content: center; /* Center the control */
-    background-color: #e9ecef; /* Light gray background for the container */
+    /* justify-content: center; */ /* Center the control */
+    /* background-color: #e9ecef; */ /* Light gray background for the container */
+    background-color: transparent; /* Match .main-nav / .ranks-modal-tabs */
     border-radius: 8px; /* Rounded corners for the container */
-    padding: 4px; /* Padding inside the container */
+    /* padding: 4px; */ /* Padding inside the container */
+    padding: 0; /* Match .main-nav / .ranks-modal-tabs */
+    gap: 6px; /* Match .main-nav / .ranks-modal-tabs */
     margin-bottom: 20px; /* Increased space below tabs */
     /* Remove bottom border */
     /* border-bottom: 1px solid #dee2e6; */
@@ -29,31 +32,41 @@
 
 .tab-button {
     flex-grow: 1; /* Allow buttons to share space */
-    padding: 8px 12px; /* Adjusted padding */
-    border: none;
+    /* padding: 8px 12px; */ /* Adjusted padding */
+    padding: 8px 16px; /* Match .nav-button / .ranks-tab-button */
+    /* border: none; */
+    border: 1px solid #d9dde0; /* Match .nav-button / .ranks-tab-button */
     background-color: transparent; /* Transparent by default */
     cursor: pointer;
     font-size: 0.9rem; /* Slightly smaller font */
-    color: #495057; /* Default text color */
-    border-radius: 6px; /* Rounded corners for the button itself */
-    font-weight: 500;
+    color: #495057; /* Default text color - matches .nav-button */
+    border-radius: 6px; /* Rounded corners for the button itself - matches */
+    font-weight: 500; /* Matches .nav-button */
     text-align: center;
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    /* transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease; /* Match .nav-button / .ranks-tab-button */
     /* Remove bottom border styles */
     /* border-bottom: 3px solid transparent; */
     /* margin-bottom: -1px; */
 }
 
-.tab-button:hover {
-    background-color: rgba(0, 0, 0, 0.05); /* Subtle hover */
-    color: #212529;
+.tab-button:hover { /* Corresponds to .nav-button:hover or .ranks-tab-button:hover:not(.active) */
+    /* background-color: rgba(0, 0, 0, 0.05); */ /* Subtle hover */
+    background-color: #e9ecef; /* Match .nav-button:hover */
+    color: #212529; /* Matches .nav-button:hover */
+    border-color: #ced4da; /* Match .nav-button:hover */
 }
 
 .tab-button.active {
-    background-color: #ffffff; /* White background for active */
-    color: #0d6efd; /* Primary color for active text */
-    font-weight: 600;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for active */
+    /* background-color: #ffffff; */ /* White background for active */
+    background-color: #dee2e6; /* Match .nav-button.active */
+    /* color: #0d6efd; */ /* Primary color for active text */
+    color: #000; /* Match .nav-button.active */
+    /* font-weight: 600; */
+    font-weight: 500; /* Match .nav-button.active */
+    border-color: #c6cdd2; /* Match .nav-button.active */
+    /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); */ /* Subtle shadow for active */
+    box-shadow: none; /* Match .nav-button.active */
     /* Remove bottom border */
     /* border-bottom-color: #0d6efd; */
 }

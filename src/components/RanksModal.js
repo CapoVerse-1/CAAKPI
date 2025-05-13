@@ -83,9 +83,24 @@ function RanksModal({ isOpen, onClose, promoters }) {
                 
                 const colorClass = getStatClass(metricConfig.name, numericValue);
 
+                let rankNumberClass = "rank-number";
+                const rank = promoter[metricConfig.rankKey];
+                if (rank === 1) {
+                  rankNumberClass += " rank-gold";
+                } else if (rank === 2) {
+                  rankNumberClass += " rank-silver";
+                } else if (rank === 3) {
+                  rankNumberClass += " rank-bronze";
+                }
+
                 return (
                   <li key={promoter.id} className="rank-item">
-                    <span className="rank-number">{promoter[metricConfig.rankKey]}.</span>
+                    <span className={rankNumberClass}>
+                      <span className="rank-digit">{rank}.</span>
+                      {(rank === 1 || rank === 2 || rank === 3) && 
+                        <FiAward className="rank-medal-icon" />
+                      }
+                    </span>
                     <span className="promoter-name">{promoter.name}</span>
                     <span className={`metric-value ${colorClass}`}>{displayValue}</span>
                   </li>

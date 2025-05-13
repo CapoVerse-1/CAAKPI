@@ -237,80 +237,80 @@ function PromoterCard({
 
   return (
     <>
-      <div className={`card promoter-card ${isGenerating ? 'generating' : ''} ${isReadOnly ? 'read-only' : ''}`}>
-        <div className="card-header">
-          <h3 className="promoter-name">{promoter.name}</h3>
-          <div className="card-actions">
-            <button onClick={() => onDelete(promoter.historyId || promoter.id)} className="icon-button" title="Delete Promoter">
-              <FiTrash2 className="icon icon-delete" />
-            </button>
-          </div>
+    <div className={`card promoter-card ${isGenerating ? 'generating' : ''} ${isReadOnly ? 'read-only' : ''}`}>
+      <div className="card-header">
+        <h3 className="promoter-name">{promoter.name}</h3>
+        <div className="card-actions">
+          <button onClick={() => onDelete(promoter.historyId || promoter.id)} className="icon-button" title="Delete Promoter">
+            <FiTrash2 className="icon icon-delete" />
+          </button>
         </div>
+      </div>
 
-        <div className="promoter-contact-stats">
-          <div className="promoter-details">
-            <p className="clickable-email" onClick={handleCopyEmail} title="Copy Email Address">
-              {isEmailCopied ? 
-                <FiCheck className="icon detail-icon icon-copied" /> : 
-                <FiMail className="icon detail-icon" />
-              }
-              {promoter.email}
-            </p>
-          </div>
+      <div className="promoter-contact-stats">
+        <div className="promoter-details">
+          <p className="clickable-email" onClick={handleCopyEmail} title="Copy Email Address">
+            {isEmailCopied ? 
+              <FiCheck className="icon detail-icon icon-copied" /> : 
+              <FiMail className="icon detail-icon" />
+            }
+            {promoter.email}
+          </p>
+        </div>
 
           <div className="promoter-stats" onClick={handleOpenStatsModal} style={{ cursor: isReadOnly ? 'default' : 'pointer' }} title={isReadOnly ? '' : 'View Stats Details'}>
-            <div className="stat-item">
-              <span className="stat-label"><FiTrendingUp className="icon stat-icon"/> MC/ET:</span>
-              <span className={`stat-value ${mcEtClass}`}>{promoter.mc_et?.toFixed(1) ?? 'N/A'}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label"><FiPieChart className="icon stat-icon"/> TMA:</span>
-              <span className={`stat-value ${tmaAnteilClass}`}>{promoter.tma_anteil?.toFixed(0) ?? 'N/A'}%</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label"><FiPercent className="icon stat-icon"/> VL:</span>
-              <span className={`stat-value ${vlShareClass}`}>{promoter.vl_share?.toFixed(0) ?? 'N/A'}%</span>
-            </div>
+          <div className="stat-item">
+            <span className="stat-label"><FiTrendingUp className="icon stat-icon"/> MC/ET:</span>
+            <span className={`stat-value ${mcEtClass}`}>{promoter.mc_et?.toFixed(1) ?? 'N/A'}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label"><FiPieChart className="icon stat-icon"/> TMA:</span>
+            <span className={`stat-value ${tmaAnteilClass}`}>{promoter.tma_anteil?.toFixed(0) ?? 'N/A'}%</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label"><FiPercent className="icon stat-icon"/> VL:</span>
+            <span className={`stat-value ${vlShareClass}`}>{promoter.vl_share?.toFixed(0) ?? 'N/A'}%</span>
           </div>
         </div>
+      </div>
 
-        <hr className="card-divider"/>
+      <hr className="card-divider"/>
 
-        <div className="generated-email-section">
-          <div className="email-header">
+      <div className="generated-email-section">
+        <div className="email-header">
             <h4><IoColorWandOutline className="header-icon" /> Magic Touch</h4>
-            {!isReadOnly && (
-              <div className="email-actions">
-                <button 
-                  onClick={handleScheduleCallClick} 
-                  className={`icon-button call-schedule-button ${isCallScheduledFeedback ? 'feedback' : ''}`} 
-                  title="Schedule Call"
-                  disabled={isCallScheduledFeedback}
-                >
-                  {isCallScheduledFeedback ? <FiCheck className="icon icon-copied"/> : <FiPhoneCall className="icon" />}
-                </button>
+          {!isReadOnly && (
+            <div className="email-actions">
+              <button 
+                onClick={handleScheduleCallClick} 
+                className={`icon-button call-schedule-button ${isCallScheduledFeedback ? 'feedback' : ''}`} 
+                title="Schedule Call"
+                disabled={isCallScheduledFeedback}
+              >
+                {isCallScheduledFeedback ? <FiCheck className="icon icon-copied"/> : <FiPhoneCall className="icon" />}
+              </button>
                 <button onClick={() => onRegenerate(promoter.id, selectedMood)} className="icon-button" title="Generate/Regenerate Email" disabled={isGenerating || isCopied}>
-                  <FiRefreshCw className="icon" />
-                </button>
-                {promoter.generatedEmail && (
-                  <>
-                    {isEditingEmail ? (
-                      <button onClick={handleSaveClick} className="icon-button" title="Save Email" disabled={isCopied}>
-                        <FiCheck className="icon icon-save" />
-                      </button>
-                    ) : (
-                      <button onClick={handleEditClick} className="icon-button" title="Edit Email" disabled={isGenerating || isCopied}>
-                        <FiEdit className="icon" />
-                      </button>
-                    )}
-                    <button onClick={handleCopyClick} className={`icon-button ${isCopied ? 'copied' : ''}`} title="Copy Email Body" disabled={isCopied || isGenerating}>
-                      {isCopied ? <FiCheck className="icon icon-copied" /> : <FiCopy className="icon" />}
+                <FiRefreshCw className="icon" />
+              </button>
+              {promoter.generatedEmail && (
+                <>
+                  {isEditingEmail ? (
+                    <button onClick={handleSaveClick} className="icon-button" title="Save Email" disabled={isCopied}>
+                      <FiCheck className="icon icon-save" />
                     </button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
+                  ) : (
+                    <button onClick={handleEditClick} className="icon-button" title="Edit Email" disabled={isGenerating || isCopied}>
+                      <FiEdit className="icon" />
+                    </button>
+                  )}
+                  <button onClick={handleCopyClick} className={`icon-button ${isCopied ? 'copied' : ''}`} title="Copy Email Body" disabled={isCopied || isGenerating}>
+                    {isCopied ? <FiCheck className="icon icon-copied" /> : <FiCopy className="icon" />}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
 
           <div className="mood-selector-container" ref={moodDropdownRef}>
             <button 
@@ -339,7 +339,7 @@ function PromoterCard({
                 ))}
               </div>
             )}
-          </div>
+        </div>
 
           <p className="subject-line clickable-subject" onClick={handleCopySubject} title="Copy Subject">
             {isSubjectCopied ? (
@@ -348,77 +348,77 @@ function PromoterCard({
               <>Subject: {displaySubject}</>
             )}
           </p>
-          
-          <div className="email-body">
-            {isGenerating ? (
-              <div className="email-placeholder loading">
-                <CgSpinner className="spinner-icon"/>
-                <span className="loading-text">Generating...</span>
-              </div>
-            ) : promoter.generatedEmail || (isEditingEmail && !isReadOnly) ? (
-              <div className={`textarea-wrapper ${isExpanded ? 'expanded' : ''}`}>
-                {isExpanded ? (
-                  <textarea
-                    ref={emailTextAreaRef}
-                    value={editedEmail}
-                    onChange={(e) => setEditedEmail(e.target.value)}
-                    readOnly={!isEditingEmail || isReadOnly}
-                    className={`${isEditingEmail ? 'editing' : ''} ${isReadOnly ? 'read-only-textarea' : ''}`}
-                    onKeyDown={isEditingEmail ? handleKeyDown : undefined}
-                    placeholder="Email content will appear here..."
-                    onClick={isEditingEmail ? (e) => e.stopPropagation() : undefined}
-                  />
-                ) : (
-                  <div className="email-placeholder">
-                    {!isReadOnly && (
-                      <button 
-                        className="button-tertiary generate-button" 
-                        onClick={(e) => { e.stopPropagation(); onRegenerate(promoter.id, selectedMood); }}
-                        disabled={isGenerating}
-                      >
-                        <FiZap /> Generate Email
-                      </button>
-                    )}
-                    {isReadOnly && <span>(No email generated)</span>}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="email-placeholder static-placeholder">
-                {!isReadOnly && (
-                  <button 
-                    className="button-tertiary generate-button" 
-                    onClick={(e) => { e.stopPropagation(); onRegenerate(promoter.id, selectedMood); }}
-                    disabled={isGenerating}
-                  >
-                    <FiZap /> Generate Email
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-
-          {promoter.generatedEmail && !isGenerating && !isReadOnly && (
-            <div className="send-button-container">
-              {!isMarkedSent ? (
-                <button 
-                  className="button-primary send-action-button" 
-                  onClick={handleMarkSentToggle}
-                >
-                  <FiSend /> Mark Sent
-                </button>
+        
+        <div className="email-body">
+          {isGenerating ? (
+            <div className="email-placeholder loading">
+              <CgSpinner className="spinner-icon"/>
+              <span className="loading-text">Generating...</span>
+            </div>
+          ) : promoter.generatedEmail || (isEditingEmail && !isReadOnly) ? (
+            <div className={`textarea-wrapper ${isExpanded ? 'expanded' : ''}`}>
+              {isExpanded ? (
+                <textarea
+                  ref={emailTextAreaRef}
+                  value={editedEmail}
+                  onChange={(e) => setEditedEmail(e.target.value)}
+                  readOnly={!isEditingEmail || isReadOnly}
+                  className={`${isEditingEmail ? 'editing' : ''} ${isReadOnly ? 'read-only-textarea' : ''}`}
+                  onKeyDown={isEditingEmail ? handleKeyDown : undefined}
+                  placeholder="Email content will appear here..."
+                  onClick={isEditingEmail ? (e) => e.stopPropagation() : undefined}
+                />
               ) : (
+                <div className="email-placeholder">
+                  {!isReadOnly && (
+                    <button 
+                      className="button-tertiary generate-button" 
+                        onClick={(e) => { e.stopPropagation(); onRegenerate(promoter.id, selectedMood); }}
+                      disabled={isGenerating}
+                    >
+                      <FiZap /> Generate Email
+                    </button>
+                  )}
+                  {isReadOnly && <span>(No email generated)</span>}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="email-placeholder static-placeholder">
+              {!isReadOnly && (
                 <button 
-                  className="button-success send-action-button sent" 
-                  onClick={handleMarkSentToggle}
+                  className="button-tertiary generate-button" 
+                    onClick={(e) => { e.stopPropagation(); onRegenerate(promoter.id, selectedMood); }}
+                  disabled={isGenerating}
                 >
-                  <FiCheck /> Marked Sent
+                  <FiZap /> Generate Email
                 </button>
               )}
             </div>
           )}
         </div>
+
+        {promoter.generatedEmail && !isGenerating && !isReadOnly && (
+          <div className="send-button-container">
+            {!isMarkedSent ? (
+              <button 
+                className="button-primary send-action-button" 
+                onClick={handleMarkSentToggle}
+              >
+                <FiSend /> Mark Sent
+              </button>
+            ) : (
+              <button 
+                className="button-success send-action-button sent" 
+                onClick={handleMarkSentToggle}
+              >
+                <FiCheck /> Marked Sent
+              </button>
+            )}
+          </div>
+        )}
       </div>
+    </div>
       <PromoterStatsModal
         isOpen={isStatsModalOpen}
         onClose={handleCloseStatsModal}
